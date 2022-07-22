@@ -1,0 +1,37 @@
+{
+    "name": "berk",
+    "version": "0.0.1",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "license": "MIT",
+    "author": "Eyal Chojnowski <eyal@pianity.com>",
+    "type": "module",
+    "scripts": {
+        "build": "ts-node scripts/build.ts",
+        "lint": "prettier --check src/ ; eslint src/",
+        "lint:fix": "prettier --write src/ ; eslint --fix src/"
+    },
+    "dependencies": {
+        "chalk": "^5.0.1",
+        "node-emoji": "^1.11.0",
+        "esbuild": "^0.14.49"
+    },
+    "devDependencies": {
+        "@types/node": "^18.0.6",
+        "@types/node-emoji": "^1.8.1",
+        "@typescript-eslint/eslint-plugin": "^5.27.1",
+        "@typescript-eslint/parser": "^5.27.1",
+        "eslint": "^8.17.0",
+        "eslint-config-airbnb": "^19.0.1",
+        "eslint-config-airbnb-base": "^15.0.0",
+        "eslint-config-airbnb-typescript": "^17.0.0",
+        "eslint-config-prettier": "^8.1.0",
+        "eslint-plugin-import": "^2.25.3",
+        "nodemon": "^2.0.16",
+        "prettier": "^2.5.0",
+        "ts-node": "^10.8.1",
+        "tsconfig-paths": "^4.0.0",
+        "typescript": "^4.7.3"
+    },
+    "packageManager": "yarn@1.22.18"
+}
