@@ -1,0 +1,9 @@
+{
+    "kinds": [
+        [":sparkles:", "implement a new feature"],
+        [":zap:", "improve existing feature"],
+        [":bug:", "fix a bug"],
+        [":bookmark:", "prepare a new release"]
+    ],
+    "scopes": []
+}

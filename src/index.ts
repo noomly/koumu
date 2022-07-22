@@ -2,28 +2,29 @@ import { readFileSync } from "node:fs";
 import { emojify } from "node-emoji";
 import chalk, { ChalkInstance } from "chalk";
 
-const KINDS = [
-    [":sparkles:", "implement a new feature"],
-    [":lightning:", "improve existing feature"],
-    [":bug:", "fix a bug"],
-    [":bookmark:", "prepare a new release"],
-];
-const SCOPES = [
-    ["meta", "touches the whole project (package config, tooling, etc...)"],
-    ["arsnap", "arsnap package"],
-    ["wallet", "wallet package"],
-    ["book", "arsnap's book"],
-    ["ci", "anything about the ci"],
-];
+type Config = {
+    version?: string;
+    kinds: [string, string][];
+    scopes: [string, string][];
+};
+
+const { kinds: KINDS, scopes: SCOPES }: Config = JSON.parse(
+    readFileSync("./berkrc.json").toString(),
+);
 
 const FULL_MSG = readFileSync(process.argv[2])?.toString();
 const SPLITTED_FULL_MSG = FULL_MSG?.split("\n")?.[0]?.split(" ");
 const KIND = SPLITTED_FULL_MSG[0];
 const SCOPE = SPLITTED_FULL_MSG[1];
-const MSG = FULL_MSG?.slice(KIND?.length + SCOPE?.length + 2);
+const MSG = FULL_MSG?.slice(KIND?.length + 1 + SCOPES.length === 0 ? 0 : SCOPE?.length + 1);
 
 type Errors = Array<
-    "totally-broken" | "missing-colon" | "bad-kind" | "bad-scope" | "start-uppercase"
+    | "totally-broken"
+    | "bad-kind"
+    | "bad-scope"
+    | "missing-colon"
+    | "extra-scope"
+    | "start-uppercase"
 >;
 
 function displayOptions(options: typeof KINDS | typeof SCOPES, emoji = false) {
@@ -51,10 +52,6 @@ function displayOptions(options: typeof KINDS | typeof SCOPES, emoji = false) {
 function detailErrors(errors: Errors) {
     for (const error of errors) {
         switch (error) {
-            case "missing-colon":
-                console.log(chalk.red("◉ The scope should be terminated by a colon."));
-                break;
-
             case "bad-kind":
                 process.stdout.write(
                     chalk.red(`◉ "${chalk.bold(chalk.blue(KIND))}" is not a valid commit kind. `),
@@ -67,6 +64,14 @@ function detailErrors(errors: Errors) {
                     chalk.red(`◉ "${chalk.bold(chalk.blue(SCOPE))}" is not a valid scope. `),
                 );
                 displayOptions(SCOPES);
+                break;
+
+            case "missing-colon":
+                console.log(chalk.red("◉ The scope should be terminated by a colon."));
+                break;
+
+            case "extra-scope":
+                console.log(chalk.red(`◉ There are no configured scopes.`));
                 break;
 
             case "start-uppercase":
@@ -99,9 +104,12 @@ function error(errors: Errors) {
     console.log("\nExample of a correct commit message:\n");
     console.log(
         chalk.bold(
-            "    " + styleKind(KINDS[0][0]),
-            styleScope(SCOPES[0][0]) + styleColon(":"),
-            styleCase("i") + "mplement new logs page",
+            "    " +
+                styleKind(KINDS[0][0]) +
+                " " +
+                (SCOPES.length > 0 ? styleScope(SCOPES[0][0]) + styleColon(":") + " " : "") +
+                styleCase("i") +
+                "mplement new logs page",
         ),
     );
 
@@ -117,6 +125,7 @@ if (!KINDS.find(([kind]) => kind === KIND)) {
     errors.push("bad-kind");
 }
 if (
+    SCOPES.length > 0 &&
     !SCOPES.find(
         ([scope]) =>
             scope === SCOPE?.slice(0, SCOPE.length - 1) || scope === SCOPE?.slice(0, SCOPE.length),
@@ -124,8 +133,11 @@ if (
 ) {
     errors.push("bad-scope");
 }
-if (SCOPE[SCOPE.length - 1] !== ":") {
+if (SCOPES.length > 0 && SCOPE[SCOPE.length - 1] !== ":") {
     errors.push("missing-colon");
+}
+if (SCOPES.length === 0 && SCOPE[SCOPE.length - 1] == ":") {
+    errors.push("extra-scope");
 }
 if (MSG[0] === MSG[0].toUpperCase()) {
     errors.push("start-uppercase");
