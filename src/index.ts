@@ -1,6 +1,18 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { emojify } from "node-emoji";
 import chalk, { ChalkInstance } from "chalk";
+
+const RC_PATH = "./guikrc.json";
+
+if (!existsSync(RC_PATH)) {
+    console.log(
+        chalk.red(
+            "No configuration file found, Guki wont check your commit" +
+                " until a `gukirc.json` file is created at root.",
+        ),
+    );
+    process.exit(1);
+}
 
 type Config = {
     version?: string;
@@ -8,9 +20,41 @@ type Config = {
     scopes: [string, string][];
 };
 
-const { kinds: KINDS, scopes: SCOPES }: Config = JSON.parse(
-    readFileSync("./berkrc.json").toString(),
-);
+const { kinds: KINDS, scopes: SCOPES }: Config = JSON.parse(readFileSync(RC_PATH).toString());
+
+{
+    let error = false;
+    if (!Array.isArray(KINDS) || !Array.isArray(SCOPES)) {
+        error = true;
+    }
+
+    for (const kind of KINDS) {
+        if (
+            !Array.isArray(kind) ||
+            kind.length !== 2 ||
+            typeof kind[0] !== "string" ||
+            typeof kind[1] !== "string"
+        ) {
+            error = true;
+        }
+    }
+
+    for (const kind of SCOPES) {
+        if (
+            !Array.isArray(kind) ||
+            kind.length !== 2 ||
+            typeof kind[0] !== "string" ||
+            typeof kind[1] !== "string"
+        ) {
+            error = true;
+        }
+    }
+
+    if (error) {
+        console.log(chalk.red('"gukirc.json" format is invalid.'));
+        process.exit(1);
+    }
+}
 
 const FULL_MSG = readFileSync(process.argv[2])?.toString();
 const SPLITTED_FULL_MSG = FULL_MSG?.split("\n")?.[0]?.split(" ");

@@ -477,32 +477,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"berk@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "berk@workspace:."
-  dependencies:
-    "@types/node": ^18.0.6
-    "@types/node-emoji": ^1.8.1
-    "@typescript-eslint/eslint-plugin": ^5.27.1
-    "@typescript-eslint/parser": ^5.27.1
-    chalk: ^5.0.1
-    esbuild: ^0.14.49
-    eslint: ^8.17.0
-    eslint-config-airbnb: ^19.0.1
-    eslint-config-airbnb-base: ^15.0.0
-    eslint-config-airbnb-typescript: ^17.0.0
-    eslint-config-prettier: ^8.1.0
-    eslint-plugin-import: ^2.25.3
-    husky: ^8.0.1
-    node-emoji: ^1.11.0
-    nodemon: ^2.0.16
-    prettier: ^2.5.0
-    ts-node: ^10.8.1
-    tsconfig-paths: ^4.0.0
-    typescript: ^4.7.3
-  languageName: unknown
-  linkType: soft
-
 "binary-extensions@npm:^2.0.0":
   version: 2.2.0
   resolution: "binary-extensions@npm:2.2.0"
@@ -653,6 +627,13 @@ __metadata:
   bin:
     color-support: bin.js
   checksum: 9b7356817670b9a13a26ca5af1c21615463b500783b739b7634a0c2047c16cef4b2865d7576875c31c3cddf9dd621fa19285e628f20198b233a5cfdda6d0793b
+  languageName: node
+  linkType: hard
+
+"commander@npm:^9.4.0":
+  version: 9.4.0
+  resolution: "commander@npm:9.4.0"
+  checksum: a322de584a6ccd1ea83c24f6a660e52d16ffbe2613fcfbb8d2cc68bc9dec637492456d754fe8bb5b039ad843ed8e04fb0b107e581a75f62cde9e1a0ab1546e09
   languageName: node
   linkType: hard
 
@@ -1596,6 +1577,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"guki@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "guki@workspace:."
+  dependencies:
+    "@types/node": ^18.0.6
+    "@types/node-emoji": ^1.8.1
+    "@typescript-eslint/eslint-plugin": ^5.27.1
+    "@typescript-eslint/parser": ^5.27.1
+    chalk: ^5.0.1
+    commander: ^9.4.0
+    esbuild: ^0.14.49
+    eslint: ^8.17.0
+    eslint-config-airbnb: ^19.0.1
+    eslint-config-airbnb-base: ^15.0.0
+    eslint-config-airbnb-typescript: ^17.0.0
+    eslint-config-prettier: ^8.1.0
+    eslint-plugin-import: ^2.25.3
+    husky: ^8.0.1
+    node-emoji: ^1.11.0
+    nodemon: ^2.0.16
+    pinst: ^3.0.0
+    prettier: ^2.5.0
+    ts-node: ^10.8.1
+    tsconfig-paths: ^4.0.0
+    typescript: ^4.7.3
+  bin:
+    guki: build/cli.js
+  languageName: unknown
+  linkType: soft
+
 "has-bigints@npm:^1.0.1, has-bigints@npm:^1.0.2":
   version: 1.0.2
   resolution: "has-bigints@npm:1.0.2"
@@ -2477,6 +2488,15 @@ __metadata:
   version: 2.3.1
   resolution: "picomatch@npm:2.3.1"
   checksum: 050c865ce81119c4822c45d3c84f1ced46f93a0126febae20737bd05ca20589c564d6e9226977df859ed5e03dc73f02584a2b0faad36e896936238238b0446cf
+  languageName: node
+  linkType: hard
+
+"pinst@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "pinst@npm:3.0.0"
+  bin:
+    pinst: bin.js
+  checksum: 4ae48a6a60f79c37071233af51b4d91bfc85cfa3c12b66ccda60cdb642b4d14a4ab0cb3587afc55b1f6192cea1772a5e4822026a0d0d3528296edef00cc2d61f
   languageName: node
   linkType: hard
 

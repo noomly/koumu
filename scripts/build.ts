@@ -8,8 +8,34 @@ import { TextDecoder } from "node:util";
 const OUTPUT_DIR = "build";
 const OUTPUT_PATH = `${OUTPUT_DIR}/commit-msg`;
 
-(async () => {
-    const header = `#!/usr/bin/env node\n// Berk version: ${version}\n`;
+async function exists(path: string) {
+    try {
+        await access(OUTPUT_DIR);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+async function cli() {
+    const header = `#!/usr/bin/env node\nvar VERSION="${version}";\n`;
+    const build = new TextDecoder().decode(
+        (
+            await esbuild.build({
+                platform: "node",
+                bundle: true,
+                format: "cjs",
+                minify: true,
+                entryPoints: ["src/cli.ts"],
+                write: false,
+            })
+        ).outputFiles[0].contents,
+    );
+    await writeFile(`${OUTPUT_DIR}/cli.js`, header + build);
+}
+
+async function guki() {
+    const header = `#!/usr/bin/env node\n// Guki version: ${version}\n`;
     const build = new TextDecoder().decode(
         (
             await esbuild.build({
@@ -22,20 +48,15 @@ const OUTPUT_PATH = `${OUTPUT_DIR}/commit-msg`;
             })
         ).outputFiles[0].contents,
     );
+    await writeFile(OUTPUT_PATH, header + build);
+    await chmod(OUTPUT_PATH, 0o755);
+}
 
-    async function dirExists(path: string) {
-        try {
-            await access(OUTPUT_DIR);
-            return true;
-        } catch {
-            return false;
-        }
-    }
-
-    if (!(await dirExists(OUTPUT_DIR))) {
+(async () => {
+    if (!(await exists(OUTPUT_DIR))) {
         await mkdir(OUTPUT_DIR);
     }
 
-    await writeFile(OUTPUT_PATH, header + build);
-    await chmod(OUTPUT_PATH, 0o755);
+    await cli();
+    await guki();
 })();
