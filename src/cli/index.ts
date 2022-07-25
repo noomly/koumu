@@ -16,7 +16,7 @@ type Options = {
 const cmd = new Command()
     .name("koumu")
     .version(KOUMU_VERSION)
-    .option("--setup <yarn1|yarn2>")
+    .option(`--setup <${PKG_MANAGER.join("|")}>`)
     .option("--commit");
 
 const opts = cmd.parse().opts<Options>();
