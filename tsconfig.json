@@ -14,10 +14,12 @@
         "skipLibCheck": true,
         "baseUrl": "src/",
         "paths": {
-            "@/*": ["*"]
+            "@/*": ["*"],
+            "package.json": ["../package.json"]
         }
     },
     "ts-node": {
-        "transpileOnly": true
+        "transpileOnly": true,
+        "require": ["tsconfig-paths/register"]
     }
 }

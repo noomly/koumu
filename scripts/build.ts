@@ -1,9 +1,9 @@
 import { chmod, writeFile, access, mkdir } from "node:fs/promises";
+import { TextDecoder } from "node:util";
 
 import esbuild from "esbuild";
 
-import { version } from "../package.json";
-import { TextDecoder } from "node:util";
+import { version } from "package.json";
 
 const OUTPUT_DIR = "build";
 const OUTPUT_PATH = `${OUTPUT_DIR}/commit-msg`;
@@ -18,7 +18,7 @@ async function exists(path: string) {
 }
 
 async function cli() {
-    const header = `#!/usr/bin/env node\nvar VERSION="${version}";\n`;
+    const header = `#!/usr/bin/env node\nvar KOUMU_VERSION="${version}";\n`;
     const build = new TextDecoder().decode(
         (
             await esbuild.build({
@@ -26,7 +26,7 @@ async function cli() {
                 bundle: true,
                 format: "cjs",
                 minify: true,
-                entryPoints: ["src/cli.ts"],
+                entryPoints: ["src/cli/index.ts"],
                 write: false,
             })
         ).outputFiles[0].contents,
@@ -34,8 +34,8 @@ async function cli() {
     await writeFile(`${OUTPUT_DIR}/cli.js`, header + build);
 }
 
-async function guki() {
-    const header = `#!/usr/bin/env node\n// Guki version: ${version}\n`;
+async function koumu() {
+    const header = `#!/usr/bin/env node\n// Koumu version: ${version}\n`;
     const build = new TextDecoder().decode(
         (
             await esbuild.build({
@@ -58,5 +58,5 @@ async function guki() {
     }
 
     await cli();
-    await guki();
+    await koumu();
 })();
