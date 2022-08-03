@@ -22,7 +22,9 @@ export default function setup(pkgManager: PkgManager) {
     devDeps.husky = "8.0.1";
 
     const installScript =
-        "husky install && cp ./node_modules/koumu/build/commit-msg .husky/commit-msg";
+        "husky install" +
+        "&& cp ./node_modules/koumu/build/commit-msg .husky/commit-msg" +
+        "&& chmod +x .husky/commit-msg";
 
     if (pkgManager === "yarn2") {
         scripts.postinstall = installScript;
