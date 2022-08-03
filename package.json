@@ -1,10 +1,14 @@
 {
     "name": "koumu",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "license": "MIT",
     "author": "Eyal Chojnowski <eyal@pianity.com>",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/noomly/koumu.git"
+    },
     "bin": "build/cli.js",
     "files": [
         "build",
