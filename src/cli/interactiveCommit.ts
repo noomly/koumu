@@ -123,7 +123,7 @@ export default async function commit() {
         process.exit(0);
     }
 
-    const commitMessage = `${kind.value}${scope ? ` ${scope.value} :` : ""} ${message.value}`;
+    const commitMessage = `${kind.value}${scope ? ` ${scope.value}:` : ""} ${message.value}`;
 
-    spawnSync("git", ["commit", "-m", commitMessage]);
+    spawnSync("git", ["commit", "-m", commitMessage], { stdio: "inherit" });
 }
