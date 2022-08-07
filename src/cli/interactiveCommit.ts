@@ -103,7 +103,7 @@ async function promptSelect(
     });
 }
 
-export default async function commit() {
+export default async function commit(externalEditor: boolean) {
     const { kinds, scopes }: { kinds: Record<string, string>; scopes: Record<string, string> } =
         JSON.parse(readFileSync("./koumurc.json").toString());
 
@@ -118,12 +118,22 @@ export default async function commit() {
         process.exit(0);
     }
 
-    const message = await promptLine("commit message", COMMIT_LENGTH, COMMIT_WARNING_AT);
-    if (message.type === "cancel") {
-        process.exit(0);
+    let message;
+    if (!externalEditor) {
+        message = await promptLine("commit message", COMMIT_LENGTH, COMMIT_WARNING_AT);
+        if (message.type === "cancel") {
+            process.exit(0);
+        }
     }
 
-    const commitMessage = `${kind.value}${scope ? ` ${scope.value}:` : ""} ${message.value}`;
+    const commitMessage =
+        kind.value + (scope ? ` ${scope.value}:` : "") + (message ? ` ${message.value}` : " ");
 
-    spawnSync("git", ["commit", "-m", commitMessage], { stdio: "inherit" });
+    const gitArgs = ["commit", "-m", commitMessage];
+
+    if (externalEditor) {
+        gitArgs.push("-e");
+    }
+
+    spawnSync("git", gitArgs, { stdio: "inherit" });
 }
