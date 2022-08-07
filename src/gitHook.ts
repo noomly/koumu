@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { emojify } from "node-emoji";
 import chalk, { ChalkInstance } from "chalk";
 
@@ -11,7 +11,7 @@ const FULL_MSG = readFileSync(process.argv[2])?.toString();
 const SPLITTED_FULL_MSG = FULL_MSG?.split("\n")?.[0]?.split(" ");
 const KIND = SPLITTED_FULL_MSG[0];
 const SCOPE = SPLITTED_FULL_MSG[1];
-const MSG = FULL_MSG?.slice(
+const MSG = FULL_MSG?.split("\n")[0]?.slice(
     (KIND?.length ?? 0) + 1 + (SCOPES.length === 0 ? 0 : (SCOPE?.length ?? 0) + 1),
 );
 
