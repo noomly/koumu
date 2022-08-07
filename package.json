@@ -28,7 +28,7 @@
         "commander": "^9.4.0",
         "esbuild": "^0.14.49",
         "node-emoji": "^1.11.0",
-        "prompts": "^2.4.2"
+        "prompts": "2.4.2"
     },
     "devDependencies": {
         "@pianity/eslint-config": "^0.0.2",
@@ -47,5 +47,8 @@
         "tsconfig-paths": "^4.0.0",
         "typescript": "^4.7.3"
     },
-    "packageManager": "yarn@3.2.0"
+    "packageManager": "yarn@3.2.0",
+    "resolutions": {
+        "prompts@2.4.2": "patch:prompts@npm:2.4.2#.yarn/patches/prompts-npm-2.4.2-f5d25d5eea.patch"
+    }
 }

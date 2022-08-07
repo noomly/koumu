@@ -2263,7 +2263,7 @@ __metadata:
     nodemon: ^2.0.16
     pinst: 3.0.0
     prettier: ^2.5.0
-    prompts: ^2.4.2
+    prompts: 2.4.2
     ts-node: ^10.8.1
     tsconfig-paths: ^4.0.0
     typescript: ^4.7.3
@@ -2852,13 +2852,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prompts@npm:^2.4.2":
+"prompts@npm:2.4.2":
   version: 2.4.2
   resolution: "prompts@npm:2.4.2"
   dependencies:
     kleur: ^3.0.3
     sisteransi: ^1.0.5
   checksum: d8fd1fe63820be2412c13bfc5d0a01909acc1f0367e32396962e737cb2fc52d004f3302475d5ce7d18a1e8a79985f93ff04ee03007d091029c3f9104bffc007d
+  languageName: node
+  linkType: hard
+
+"prompts@patch:prompts@npm:2.4.2#.yarn/patches/prompts-npm-2.4.2-f5d25d5eea.patch::locator=koumu%40workspace%3A.":
+  version: 2.4.2
+  resolution: "prompts@patch:prompts@npm%3A2.4.2#.yarn/patches/prompts-npm-2.4.2-f5d25d5eea.patch::version=2.4.2&hash=4515dc&locator=koumu%40workspace%3A."
+  dependencies:
+    kleur: ^3.0.3
+    sisteransi: ^1.0.5
+  checksum: 12d44a18ef451317d6ab19492f5215bed54a2870fce6a2d4f92172dae7e6a18802ffc6fe4fbc6c69fb74906c0cbda39c774150bb9541acfc9ba3442e10fdf83b
   languageName: node
   linkType: hard
 
