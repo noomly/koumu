@@ -4,9 +4,7 @@ import { spawnSync } from "node:child_process";
 import chalk from "chalk";
 import { prompt as getUserInput } from "prompts";
 import { emojify } from "node-emoji";
-
-const COMMIT_LENGTH = 60;
-const COMMIT_WARNING_AT = 50;
+import { Config, ConfigMap, readConfig } from "@/config";
 
 type PromptResult =
     | {
@@ -54,23 +52,18 @@ async function promptLine(prompt: string, length: number, warning: number): Prom
     });
 }
 
-async function promptSelect(
-    prompt: string,
-    rawOptions: Record<string, string>,
-): Promise<PromptResult> {
-    const optionsEntries = Object.entries(rawOptions);
-
-    const widestOption = optionsEntries
+async function promptSelect(prompt: string, rawOptions: ConfigMap): Promise<PromptResult> {
+    const widestOption = rawOptions
         .map(([option]) => option)
         .sort((a, b) => b.length - a.length)[0];
 
     const points = Object.fromEntries(
-        optionsEntries.map(([option]) => {
+        rawOptions.map(([option]) => {
             return [option, ".".repeat(widestOption.length - option.length + 5)];
         }),
     );
 
-    const options = optionsEntries.map(([option, desc]) => {
+    const options = rawOptions.map(([option, desc]) => {
         const emoji = emojify(option);
 
         return {
@@ -104,23 +97,21 @@ async function promptSelect(
 }
 
 export default async function commit(externalEditor: boolean) {
-    const { kinds, scopes }: { kinds: Record<string, string>; scopes: Record<string, string> } =
-        JSON.parse(readFileSync("./koumurc.json").toString());
+    const { kinds, scopes, maxMessageLength } = readConfig();
 
     const kind = await promptSelect("commit kind", kinds);
     if (kind.type === "cancel") {
         process.exit(0);
     }
 
-    const scope =
-        Object.values(scopes).length === 0 ? undefined : await promptSelect("commit scope", scopes);
+    const scope = scopes.length === 0 ? undefined : await promptSelect("commit scope", scopes);
     if (scope?.type === "cancel") {
         process.exit(0);
     }
 
     let message;
     if (!externalEditor) {
-        message = await promptLine("commit message", COMMIT_LENGTH, COMMIT_WARNING_AT);
+        message = await promptLine("commit message", maxMessageLength, maxMessageLength - 10);
         if (message.type === "cancel") {
             process.exit(0);
         }

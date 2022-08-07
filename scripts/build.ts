@@ -43,7 +43,7 @@ async function koumu() {
                 bundle: true,
                 format: "cjs",
                 minify: true,
-                entryPoints: ["src/index.ts"],
+                entryPoints: ["src/gitHook.ts"],
                 write: false,
             })
         ).outputFiles[0].contents,

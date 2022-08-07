@@ -3,70 +3,9 @@ import { emojify } from "node-emoji";
 import chalk, { ChalkInstance } from "chalk";
 
 import { exhaustive } from "@/utils";
+import { readConfig } from "@/config";
 
-const RC_PATH = "./koumurc.json";
-
-if (!existsSync(RC_PATH)) {
-    console.log(
-        chalk.red(
-            "No configuration file found, Koumu wont check your commit" +
-                " until a `koumurc.json` file is created at root.",
-        ),
-    );
-    process.exit(1);
-}
-
-type Config = {
-    version?: string;
-    kinds: [string, string][];
-    scopes: [string, string][];
-};
-
-const { kinds: KINDS, scopes: SCOPES }: Config = (() => {
-    const { kinds: rawKinds, scopes: rawScopes } = JSON.parse(readFileSync(RC_PATH).toString());
-
-    let kinds: [string, string][];
-    let scopes: [string, string][];
-
-    try {
-        kinds = Object.entries(rawKinds);
-        scopes = Object.entries(rawScopes);
-    } catch (e) {
-        console.log(chalk.red('"koumurc.json" format is invalid.'));
-        process.exit(1);
-    }
-
-    let error = false;
-
-    for (const kind of kinds) {
-        if (
-            !Array.isArray(kind) ||
-            kind.length !== 2 ||
-            typeof kind[0] !== "string" ||
-            typeof kind[1] !== "string"
-        ) {
-            error = true;
-        }
-    }
-
-    for (const kind of scopes) {
-        if (
-            !Array.isArray(kind) ||
-            kind.length !== 2 ||
-            typeof kind[0] !== "string" ||
-            typeof kind[1] !== "string"
-        ) {
-            error = true;
-        }
-    }
-
-    if (error) {
-        console.log(chalk.red('"koumurc.json" format is invalid.'));
-        process.exit(1);
-    }
-
-    return { kinds, scopes };
-})();
+const { kinds: KINDS, scopes: SCOPES, maxMessageLength: MAX_MESSAGE_LENGTH } = readConfig();
 
 const FULL_MSG = readFileSync(process.argv[2])?.toString();
 const SPLITTED_FULL_MSG = FULL_MSG?.split("\n")?.[0]?.split(" ");
@@ -83,6 +22,7 @@ type Errors = Array<
     | "missing-colon"
     | "extra-scope"
     | "start-lowercase"
+    | "msg-too-long"
 >;
 
 function displayOptions(options: typeof KINDS | typeof SCOPES, emoji = false) {
@@ -129,11 +69,20 @@ function detailErrors(errors: Errors) {
                 break;
 
             case "extra-scope":
-                console.log(chalk.red(`◉ There are no configured scopes.`));
+                console.log(chalk.red("◉ There are no configured scopes."));
                 break;
 
             case "start-lowercase":
-                console.log(chalk.red(`◉ The message should start with an uppercase letter.`));
+                console.log(chalk.red("◉ The message should start with an uppercase letter."));
+                break;
+
+            case "msg-too-long":
+                console.log(
+                    chalk.red(
+                        `◉ The message is too long. It should be ${MAX_MESSAGE_LENGTH} characters` +
+                            " or less.",
+                    ),
+                );
                 break;
 
             case "totally-broken":
@@ -204,6 +153,9 @@ if (SCOPES.length === 0 && SCOPE[SCOPE.length - 1] === ":") {
 }
 if (MSG[0] === MSG[0].toLowerCase()) {
     errors.push("start-lowercase");
+}
+if (MSG.length > MAX_MESSAGE_LENGTH) {
+    errors.push("msg-too-long");
 }
 
 if (errors.length > 0) {
