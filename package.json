@@ -18,7 +18,7 @@
         "build": "ts-node scripts/build.ts",
         "lint": "prettier --check src/ ; eslint src/",
         "lint:fix": "prettier --write src/ ; eslint --fix src/",
-        "postinstall": "husky install",
+        "postinstall": "patch-package ; husky install",
         "prepack": "pinst --disable",
         "postpack": "pinst --enable"
     },
@@ -27,7 +27,7 @@
         "commander": "^9.4.0",
         "esbuild": "^0.14.49",
         "node-emoji": "^1.11.0",
-        "prompts": "2.4.2"
+        "prompts": "noomly/prompts#e282568af270a0bd625dc377bb5d83f37991efc3"
     },
     "devDependencies": {
         "@pianity/eslint-config": "^0.0.2",
@@ -40,14 +40,13 @@
         "eslint": "^8.17.0",
         "husky": "8.0.1",
         "nodemon": "^2.0.16",
+        "patch-package": "^6.4.7",
         "pinst": "3.0.0",
+        "postinstall-postinstall": "^2.1.0",
         "prettier": "^2.5.0",
         "ts-node": "^10.8.1",
         "tsconfig-paths": "^4.0.0",
         "typescript": "^4.7.3"
     },
-    "packageManager": "yarn@3.2.0",
-    "resolutions": {
-        "prompts@2.4.2": "patch:prompts@npm:2.4.2#.yarn/patches/prompts-npm-2.4.2-f5d25d5eea.patch"
-    }
+    "packageManager": "yarn@3.2.0"
 }
