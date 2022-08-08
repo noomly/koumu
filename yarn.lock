@@ -2864,11 +2864,11 @@ __metadata:
 
 "prompts@patch:prompts@npm:2.4.2#.yarn/patches/prompts-npm-2.4.2-f5d25d5eea.patch::locator=koumu%40workspace%3A.":
   version: 2.4.2
-  resolution: "prompts@patch:prompts@npm%3A2.4.2#.yarn/patches/prompts-npm-2.4.2-f5d25d5eea.patch::version=2.4.2&hash=4515dc&locator=koumu%40workspace%3A."
+  resolution: "prompts@patch:prompts@npm%3A2.4.2#.yarn/patches/prompts-npm-2.4.2-f5d25d5eea.patch::version=2.4.2&hash=bce012&locator=koumu%40workspace%3A."
   dependencies:
     kleur: ^3.0.3
     sisteransi: ^1.0.5
-  checksum: 12d44a18ef451317d6ab19492f5215bed54a2870fce6a2d4f92172dae7e6a18802ffc6fe4fbc6c69fb74906c0cbda39c774150bb9541acfc9ba3442e10fdf83b
+  checksum: 38346514f14a34834772dc97471b00480242e4118e3f9cc00ed7c088d52db5c24cfbb80f0f24ab88ce0243d0f79584c654e52f07d40f1155fe28e4ea1e8c9941
   languageName: node
   linkType: hard
 
