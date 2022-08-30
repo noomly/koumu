@@ -15,13 +15,13 @@ future to use it on any kind of project.
 If you're using Yarn2 for your project, run this command to setup Koumu:
 
 ```
-npx koumu --setup yarn2
+npx koumu setup --yarn2
 ```
 
 Otherwise, run the following:
 
 ```
-npx koumu --setup other
+npx koumu setup --other
 ```
 
 This should edit your `package.json` in order to install Husky and instruct it how to automatically
@@ -33,7 +33,7 @@ package manager.
 When you're ready to commit, simply run:
 
 ```
-npx koumu --commit
+npx koumu commit
 ```
 
 An interactive prompt will run, assisting you in writing a commit message respecting your rules.
