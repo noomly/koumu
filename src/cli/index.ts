@@ -25,10 +25,18 @@ program
 
 program
     .command("commit")
-    .option("-e")
-    .action((rawOptions: Record<string, boolean>, _cmd) => {
-        const options = Object.keys(rawOptions);
-        commit(!!options[0]);
+    .option("-e --external", "use an external editor to edit the commit message")
+    .option(
+        "-i --issue",
+        "(requires github cli) interactively select an issue that will be added to the footer",
+    )
+    .option(
+        "-c --closes-issue",
+        "(requires github cli) interactively select an issue that will be added to the footer," +
+            ' prepended with "closes"',
+    )
+    .action((options: Record<"external" | "issue" | "closesIssue", boolean>, _cmd) => {
+        commit(options.external, options.issue, options.closesIssue);
     });
 
 program.parse();

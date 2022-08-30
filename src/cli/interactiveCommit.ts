@@ -1,9 +1,9 @@
-import { readFileSync } from "node:fs";
-import { spawnSync } from "node:child_process";
+import { spawn as spawnRaw, spawnSync } from "node:child_process";
 
 import chalk from "chalk";
 import { prompt as getUserInput } from "prompts";
 import { emojify } from "node-emoji";
+
 import { Config, ConfigMap, readConfig } from "@/config";
 
 type PromptResult =
@@ -79,10 +79,15 @@ async function promptSelect(prompt: string, rawOptions: ConfigMap): Promise<Prom
                 message: prompt,
                 choices: options,
                 type: "autocomplete",
-                suggest: (input: string, options: [{ title: string; desc: string }]) =>
-                    options.filter(
-                        (option) => option.desc.includes(input) || option.title.includes(input),
-                    ),
+                suggest: (input: string, options: [{ title: string; desc: string }]) => {
+                    const lowerCaseInput = input.toLowerCase();
+
+                    return options.filter(
+                        (option) =>
+                            option.desc.toLowerCase().includes(lowerCaseInput) ||
+                            option.title.toLowerCase().includes(lowerCaseInput),
+                    );
+                },
             },
             {
                 onCancel: () => {
@@ -96,7 +101,43 @@ async function promptSelect(prompt: string, rawOptions: ConfigMap): Promise<Prom
     });
 }
 
-export default async function commit(externalEditor: boolean) {
+type PromiseWStatus<T> = { pending: boolean; promise: Promise<T> };
+type Issue = { number: number; createdAt: string; title: string };
+type IssuesResult = "error" | Issue[];
+
+function getGhIssues(): PromiseWStatus<IssuesResult> {
+    const promiseWStatus: PromiseWStatus<IssuesResult> = {
+        pending: true,
+        promise: new Promise<IssuesResult>((resolve) => {
+            const gh = spawnRaw("gh", ["issue", "list", "--json", "number,createdAt,title"], {
+                timeout: 5000,
+            });
+
+            gh.on("error", () => resolve("error"));
+
+            gh.stderr.on("data", () => resolve("error"));
+
+            gh.stdout.on("data", (data) => resolve(JSON.parse(data) as Issue[]));
+        }).then((data) => {
+            promiseWStatus.pending = false;
+            return data;
+        }),
+    };
+
+    return promiseWStatus;
+}
+
+export default async function commit(
+    externalEditor: boolean,
+    withIssue: boolean,
+    withClosingIssue: boolean,
+) {
+    let issuesPromise: undefined | PromiseWStatus<IssuesResult>;
+    let issue: undefined | PromptResult;
+    if (withIssue || withClosingIssue) {
+        issuesPromise = getGhIssues();
+    }
+
     const { kinds, scopes, maxMessageLength } = readConfig();
 
     const kind = await promptSelect("commit kind", kinds);
@@ -109,16 +150,43 @@ export default async function commit(externalEditor: boolean) {
         process.exit(0);
     }
 
-    let message;
+    if (issuesPromise) {
+        if (issuesPromise.pending) {
+            console.log("Loading github issues...");
+        }
+
+        const issues = await issuesPromise.promise;
+
+        if (issues !== "error") {
+            issue = await promptSelect(
+                `${withClosingIssue ? "closes " : ""}issue`,
+                [...issues.values()].map(({ number, title }) => [`#${number}`, title]),
+            );
+
+            if (issue.type === "cancel") {
+                process.exit(0);
+            }
+        }
+    }
+
+    let message: undefined | PromptResult;
     if (!externalEditor) {
-        message = await promptLine("commit message", maxMessageLength, maxMessageLength - 10);
-        if (message.type === "cancel") {
+        while (!message || (message.type === "submit" && message.value.length === 0)) {
+            message = await promptLine("commit message", maxMessageLength, maxMessageLength - 10);
+        }
+
+        if (message?.type === "cancel") {
             process.exit(0);
         }
     }
 
     const commitMessage =
-        kind.value + (scope ? ` ${scope.value}:` : "") + (message ? ` ${message.value}` : " ");
+        kind.value +
+        (scope ? ` ${scope.value}:` : "") +
+        (message && message.type === "submit" ? ` ${message.value}` : " ") +
+        (issue && issue.type === "submit"
+            ? `\n\n(${withClosingIssue ? "Closes " : ""}${issue.value})`
+            : " ");
 
     const gitArgs = ["commit", "-m", commitMessage];
 
