@@ -166,6 +166,12 @@ export default async function commit(
             if (issue.type === "cancel") {
                 process.exit(0);
             }
+        } else {
+            console.log(
+                "Couldn't load issues from Github. Verify that you have Github's cli installed" +
+                    ` and are logged in (by running \`${chalk.bold("gh auth login")}\`).` +
+                    ` ${chalk.blue(chalk.underline("https://github.com/cli/cli#installation"))}`,
+            );
         }
     }
 
