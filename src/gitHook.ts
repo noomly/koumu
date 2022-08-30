@@ -19,6 +19,7 @@ type Errors = Array<
     | "totally-broken"
     | "bad-kind"
     | "bad-scope"
+    | "no-message"
     | "missing-colon"
     | "extra-scope"
     | "start-lowercase"
@@ -62,6 +63,10 @@ function detailErrors(errors: Errors) {
                     chalk.red(`◉ "${chalk.bold(chalk.blue(SCOPE))}" is not a valid scope. `),
                 );
                 displayOptions(SCOPES);
+                break;
+
+            case "no-message":
+                process.stdout.write(chalk.red(`◉ The message should not be empty.`));
                 break;
 
             case "missing-colon":
@@ -128,7 +133,7 @@ function error(errors: Errors) {
     process.exit(1);
 }
 
-if (!FULL_MSG || !SPLITTED_FULL_MSG || !KIND || !SCOPE || !MSG) {
+if (!FULL_MSG || !SPLITTED_FULL_MSG || !KIND || (SCOPES.length > 0 && !SCOPE)) {
     error(["totally-broken"]);
 }
 
@@ -145,16 +150,19 @@ if (
 ) {
     errors.push("bad-scope");
 }
+if (!MSG) {
+    errors.push("no-message");
+}
 if (SCOPES.length > 0 && SCOPE[SCOPE.length - 1] !== ":") {
     errors.push("missing-colon");
 }
-if (SCOPES.length === 0 && SCOPE[SCOPE.length - 1] === ":") {
+if (SCOPES.length === 0 && SCOPE && SCOPE[SCOPE.length - 1] === ":") {
     errors.push("extra-scope");
 }
-if (MSG[0] === MSG[0].toLowerCase()) {
+if (MSG && MSG[0] === MSG[0].toLowerCase()) {
     errors.push("start-lowercase");
 }
-if (MSG.length > MAX_MESSAGE_LENGTH) {
+if (MSG && MSG.length > MAX_MESSAGE_LENGTH) {
     errors.push("msg-too-long");
 }
 
