@@ -1,6 +1,6 @@
 import { Command } from "commander";
 
-import commit from "@/cli/interactiveCommit";
+import commit from "@/cli/commit";
 import setup from "@/cli/setup";
 
 declare const KOUMU_VERSION: string;
