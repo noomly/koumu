@@ -1,5 +1,3 @@
-import { chmodSync, copyFileSync, writeFileSync } from "node:fs";
-
 import { Command } from "commander";
 
 import commit from "@/cli/commit";

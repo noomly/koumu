@@ -10,8 +10,8 @@ const { kinds: KINDS, scopes: SCOPES, maxMessageLength: MAX_MESSAGE_LENGTH } = r
 
 const FULL_MSG = readFileSync(process.argv[2])?.toString();
 const SPLITTED_FULL_MSG = FULL_MSG?.split("\n")?.[0]?.split(" ");
-const KIND = SPLITTED_FULL_MSG[0];
-const SCOPE = SPLITTED_FULL_MSG[1];
+const KIND = SPLITTED_FULL_MSG?.[0];
+const SCOPE = SPLITTED_FULL_MSG?.[1];
 const MSG = FULL_MSG?.split("\n")[0]?.slice(
     (KIND?.length ?? 0) + 1 + (SCOPES.length === 0 ? 0 : (SCOPE?.length ?? 0) + 1),
 );
@@ -154,7 +154,7 @@ if (
 if (!MSG) {
     errors.push("no-message");
 }
-if (SCOPES.length > 0 && SCOPE[SCOPE.length - 1] !== ":") {
+if (SCOPES.length > 0 && SCOPE && SCOPE[SCOPE.length - 1] !== ":") {
     errors.push("missing-colon");
 }
 if (SCOPES.length === 0 && SCOPE && SCOPE[SCOPE.length - 1] === ":") {
