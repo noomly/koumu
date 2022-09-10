@@ -7,26 +7,62 @@ a CLI utility allowing you to interactively write valid commit messages.*
 
 ## How to use
 
-At the moment Koumu is assumed to be used for NPM package projects. There will be a way in the
-future to use it on any kind of project.
+### Installing
+
+Koumu being an NPM package, the recommended way to install it is via NPM. Make sure you have it
+installed and run:
+
+```
+npm install -g koumu
+```
+
+Then if you already configured your `$PATH` to include NPM's global installation directory, you
+should be able to just run `koumu --help` in your terminal to get started.
+
+If you didn't configure your `$PATH` and running `koumu --help` results in `command not found`,
+you can add the following line at the end of your shell's configuration file (`~/.bashrc`,
+`~/.zshrc`, ... depending on your shell):
+
+```bash
+export PATH="$(npm prefix -g)/bin:$PATH"
+```
 
 ### Setting up the hook
 
-If you're using Yarn2 for your project, run this command to setup Koumu:
+Koumu's cli includes a `setup` command to help you configure your repository to use Koumu's Git
+hook. It can either simply write the hook file at `.git/hooks/commit-msg` or, if your repository is
+a JS project that uses NPM or Yarn, Koumu can also setup [Husky](https://github.com/typicode/husky)
+for you; an NPM package that allows committing hooks and automatically installing them when running
+`npm/yarn install`.
+
+#### Setup Koumu for any Git repository
+
+If your project isn't a JS project, if your package manager isn't supported, or if you do not wish
+to use Husky, you can still easily install the hook on any Git repository by running:
 
 ```
-npx koumu setup --yarn2
+koumu setup --generic
 ```
 
-Otherwise, run the following:
+This will simply write the hook at `.git/hooks/commit-msg`.
+
+#### Setup Koumu and Husky for a JS project
+
+If you're using Yarn 2, run the following command:
 
 ```
-npx koumu setup --other
+koumu setup --yarn2
 ```
 
-This should edit your `package.json` in order to install Husky and instruct it how to automatically
-install the Koumu Git hook inside. To finish the installation, run the `install` command of your
-package manager.
+If you're using Yarn 1 or NPM, run this one:
+
+```
+koumu setup --npm
+```
+
+This will edit your `package.json` in order to install Husky and instruct it how to automatically
+install the Koumu's hook. To finish the installation, run the `install` command of your package
+manager (`yarn install` or `npm install`).
 
 ### Using the interactive prompt
 
