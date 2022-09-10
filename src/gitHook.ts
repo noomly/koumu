@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
+
 import { emojify } from "node-emoji";
-import chalk, { ChalkInstance } from "chalk";
+import chalk from "chalk";
 
 import { exhaustive } from "@/utils";
 import { readConfig } from "@/config";
@@ -109,7 +110,7 @@ function error(errors: Errors) {
         detailErrors(errors);
     }
 
-    const underlined = (underline: boolean, color: ChalkInstance) =>
+    const underlined = (underline: boolean, color: chalk.Chalk) =>
         underline || errors[0] === "totally-broken"
             ? (msg: string) => chalk.underline(color(msg))
             : color;

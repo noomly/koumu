@@ -1,5 +1,6 @@
+import { existsSync, readFileSync, statSync } from "node:fs";
+
 import chalk from "chalk";
-import { existsSync, readFileSync } from "node:fs";
 
 export type ConfigMap = [kind: string, description: string][];
 
@@ -50,7 +51,7 @@ function getNumber(rawConfig: Record<string, any>, key: string): number {
 }
 
 export function readConfig(): Config {
-    if (!existsSync(RC_PATH)) {
+    if (!existsSync(RC_PATH) && statSync(RC_PATH).isFile()) {
         console.log(
             chalk.red(
                 "No configuration file found, Koumu wont check your commit" +

@@ -1,26 +1,32 @@
+import { chmodSync, copyFileSync, writeFileSync } from "node:fs";
+
 import { Command } from "commander";
 
 import commit from "@/cli/commit";
-import setup from "@/cli/setup";
+import setup, { SetupMode, SETUP_MODES } from "@/cli/setup";
 
 declare const KOUMU_VERSION: string;
-
-const PKG_MANAGER = ["yarn2", "other"] as const;
-export type PkgManager = typeof PKG_MANAGER[number];
+declare const KOUMU_HOOK_BUILD: string;
 
 const program = new Command().name("koumu").version(KOUMU_VERSION);
 
 program
     .command("setup")
-    .option("--yarn2")
-    .option("--other")
-    .action((rawOptions: Record<string, boolean>, cmd) => {
-        const options = Object.keys(rawOptions);
-        if (options.length !== 1 || !PKG_MANAGER.includes(options[0] as PkgManager)) {
+    .option("--npm", "setup Koumu for NPM or Yarn v1")
+    .option("--yarn", "alias for --npm")
+    .option("--yarn2", "setup Koumu for Yarn v2+")
+    .option(
+        "--generic",
+        "only install Koumu's git hook into standard git directory (use this if" +
+            " your repo doesn't host a JS project)",
+    )
+    .action((rawOptions: Record<SetupMode, boolean>, cmd) => {
+        const options = Object.keys(rawOptions) as SetupMode[];
+        if (options.length !== 1 || !SETUP_MODES.includes(options[0])) {
             cmd.help();
         }
 
-        setup(options[0] as PkgManager);
+        setup(options[0], KOUMU_HOOK_BUILD);
     });
 
 program

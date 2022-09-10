@@ -17,8 +17,11 @@ async function exists(path: string) {
     }
 }
 
-async function cli() {
-    const header = `#!/usr/bin/env node\nvar KOUMU_VERSION="${version}";\n`;
+async function cli(hookBuild: string): Promise<string> {
+    const header =
+        `#!/usr/bin/env node\n` +
+        `var KOUMU_VERSION="${version}";\n` +
+        `var KOUMU_HOOK_BUILD=${JSON.stringify(hookBuild)};\n`;
     const build = new TextDecoder().decode(
         (
             await esbuild.build({
@@ -31,10 +34,13 @@ async function cli() {
             })
         ).outputFiles[0].contents,
     );
-    await writeFile(`${OUTPUT_DIR}/cli.js`, header + build);
+    const final = header + build;
+    await writeFile(`${OUTPUT_DIR}/cli.js`, final);
+
+    return final;
 }
 
-async function koumu() {
+async function koumu(): Promise<string> {
     const header = `#!/usr/bin/env node\n// Koumu version: ${version}\n`;
     const build = new TextDecoder().decode(
         (
@@ -48,8 +54,11 @@ async function koumu() {
             })
         ).outputFiles[0].contents,
     );
-    await writeFile(OUTPUT_PATH, header + build);
+    const final = header + build;
+    await writeFile(OUTPUT_PATH, final);
     await chmod(OUTPUT_PATH, 0o755);
+
+    return final;
 }
 
 (async () => {
@@ -57,6 +66,6 @@ async function koumu() {
         await mkdir(OUTPUT_DIR);
     }
 
-    await cli();
-    await koumu();
+    const hookBuild = await koumu();
+    await cli(hookBuild);
 })();
