@@ -1,9 +1,9 @@
 import { chmodSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 
 import chalk from "chalk";
 
-import { exhaustive } from "@/utils";
+import { exhaustive, findGitDir } from "@/utils";
 
 declare const KOUMU_VERSION: string;
 
@@ -26,10 +26,7 @@ function setupJs(mode: SetupMode) {
     devDeps.koumu = KOUMU_VERSION;
     devDeps.husky = "8.0.1";
 
-    const installScript =
-        "husky install" +
-        "&& cp ./node_modules/koumu/build/commit-msg .husky/commit-msg" +
-        "&& chmod +x .husky/commit-msg";
+    const installScript = "husky install && koumu setup --generic";
 
     if (mode === "yarn2") {
         scripts.postinstall = installScript;
@@ -47,26 +44,8 @@ function setupJs(mode: SetupMode) {
     );
 }
 
-function findGit(path: string): string | null {
-    const gitPath = join(path, ".git");
-
-    try {
-        if (existsSync(gitPath) && statSync(gitPath).isDirectory()) {
-            return gitPath;
-        }
-    } catch (e) {
-        return null;
-    }
-
-    if (path === "/") {
-        return null;
-    } else {
-        return findGit(resolve(path, ".."));
-    }
-}
-
-function setupGeneric(hookBuild: string) {
-    const gitPath = findGit(process.cwd());
+function setupGeneric(commitMsgBuild: string, prepareCommitMsgBuild: string) {
+    const gitPath = findGitDir(process.cwd());
 
     if (!gitPath) {
         console.log(
@@ -81,13 +60,20 @@ function setupGeneric(hookBuild: string) {
         mkdirSync(hooksPath);
     }
 
-    const hookPath = join(hooksPath, "commit-msg");
+    const commitMsgPath = join(hooksPath, "commit-msg");
+    writeFileSync(commitMsgPath, commitMsgBuild);
+    chmodSync(commitMsgPath, 0o755);
 
-    writeFileSync(hookPath, hookBuild);
-    chmodSync(hookPath, 0o755);
+    const prepareCommitMsgPath = join(hooksPath, "prepare-commit-msg");
+    writeFileSync(prepareCommitMsgPath, prepareCommitMsgBuild);
+    chmodSync(prepareCommitMsgPath, 0o755);
 }
 
-export default function setup(mode: SetupMode, hookBuild: string) {
+export default function setup(
+    mode: SetupMode,
+    commitMsgBuild: string,
+    prepareCommitMsgBuild: string,
+) {
     switch (mode) {
         case "npm":
         case "yarn":
@@ -96,7 +82,7 @@ export default function setup(mode: SetupMode, hookBuild: string) {
             break;
 
         case "generic":
-            setupGeneric(hookBuild);
+            setupGeneric(commitMsgBuild, prepareCommitMsgBuild);
             break;
 
         default:

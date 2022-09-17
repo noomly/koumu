@@ -5,8 +5,9 @@ import chalk from "chalk";
 import { readConfig } from "@/config";
 import { loopingPromptLine, promptSelect } from "@/cli/commit/prompts";
 import { ghIssuesPrompt, loadGhIssues } from "@/cli/commit/ghIssues";
+import { isMerge } from "@/utils";
 
-export default async function commit(
+async function regularCommit(
     externalEditor: boolean,
     withIssue: boolean,
     withClosingIssue: boolean,
@@ -58,4 +59,37 @@ export default async function commit(
     }
 
     spawnSync("git", gitArgs, { stdio: "inherit" });
+}
+
+async function mergeCommit(externalEditor: boolean) {
+    const { mergeKind, maxMessageLength } = readConfig();
+
+    const message = externalEditor
+        ? undefined
+        : await loopingPromptLine("merge commit message", maxMessageLength, maxMessageLength - 10);
+    if (message?.type === "cancel") {
+        process.exit(0);
+    }
+
+    const commitMessage = mergeKind + (message ? ` ${message.value}` : " ");
+
+    const gitArgs = ["commit", "-m", commitMessage];
+
+    if (externalEditor) {
+        gitArgs.push("-e");
+    }
+
+    spawnSync("git", gitArgs, { stdio: "inherit" });
+}
+
+export default async function commit(
+    externalEditor: boolean,
+    withIssue: boolean,
+    withClosingIssue: boolean,
+) {
+    if (!isMerge()) {
+        await regularCommit(externalEditor, withIssue, withClosingIssue);
+    } else {
+        await mergeCommit(externalEditor);
+    }
 }

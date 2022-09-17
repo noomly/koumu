@@ -4,7 +4,8 @@ import commit from "@/cli/commit";
 import setup, { SetupMode, SETUP_MODES } from "@/cli/setup";
 
 declare const KOUMU_VERSION: string;
-declare const KOUMU_HOOK_BUILD: string;
+declare const KOUMU_COMMIT_MSG_BUILD: string;
+declare const KOUMU_PREPARE_COMMIT_MSG_BUILD: string;
 
 const program = new Command().name("koumu").version(KOUMU_VERSION);
 
@@ -24,7 +25,7 @@ program
             cmd.help();
         }
 
-        setup(options[0], KOUMU_HOOK_BUILD);
+        setup(options[0], KOUMU_COMMIT_MSG_BUILD, KOUMU_PREPARE_COMMIT_MSG_BUILD);
     });
 
 program

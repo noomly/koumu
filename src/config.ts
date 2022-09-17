@@ -9,10 +9,12 @@ export type Config = {
     kinds: ConfigMap;
     scopes: ConfigMap;
     maxMessageLength: number;
+    mergeKind: string;
 };
 
 const DEFAULT_CONFIG = {
     maxMessageLength: 72,
+    mergeKind: ":twisted_rightwards_arrows:",
 };
 
 const RC_PATH = "./koumurc.json";
@@ -44,10 +46,24 @@ function getNumber(rawConfig: Record<string, any>, key: string): number {
     try {
         number = Number(rawConfig[key]);
     } catch (e) {
-        throw new Error(`Invalid number "${key}" in koumurc.json`);
+        throw new Error(`Invalid number for "${key}" in koumurc.json`);
     }
 
     return number;
+}
+
+function getString(rawConfig: Record<string, any>, key: string): string {
+    let string;
+    try {
+        string = rawConfig[key];
+        if (typeof string !== "string") {
+            throw new Error();
+        }
+    } catch (e) {
+        throw new Error(`Invalid string for "${key}" in koumurc.json`);
+    }
+
+    return string;
 }
 
 export function readConfig(): Config {
@@ -66,6 +82,7 @@ export function readConfig(): Config {
     let kinds: [string, string][];
     let scopes: [string, string][];
     let maxMessageLength: number;
+    let mergeKind: string;
 
     try {
         kinds = getStringMap(rawConfig, "kinds");
@@ -73,10 +90,13 @@ export function readConfig(): Config {
         maxMessageLength = rawConfig.maxMessageLength
             ? getNumber(rawConfig, "maxMessageLength")
             : DEFAULT_CONFIG.maxMessageLength;
+        mergeKind = rawConfig.mergeKind
+            ? getString(rawConfig, "mergeKind")
+            : DEFAULT_CONFIG.mergeKind;
     } catch (e) {
         console.log(chalk.red((e as any).message));
         process.exit(1);
     }
 
-    return { kinds, scopes, maxMessageLength };
+    return { kinds, scopes, maxMessageLength, mergeKind };
 }

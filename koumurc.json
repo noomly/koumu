@@ -36,5 +36,6 @@
         ":package:": "update dependencies",
         ":wrench:": "update dev workspace"
     },
-    "scopes": {}
+    "scopes": {},
+    "mergeKind": ":twisted_rightwards_arrows:"
 }

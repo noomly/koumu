@@ -3,10 +3,14 @@ import { readFileSync } from "node:fs";
 import { emojify } from "node-emoji";
 import chalk from "chalk";
 
-import { exhaustive } from "@/utils";
+import { exhaustive, findGitDir, isMerge } from "@/utils";
 import { readConfig } from "@/config";
 
-const { kinds: KINDS, scopes: SCOPES, maxMessageLength: MAX_MESSAGE_LENGTH } = readConfig();
+const { kinds: KINDS, scopes: RAW_SCOPES, maxMessageLength: MAX_MESSAGE_LENGTH } = readConfig();
+
+const IS_MERGE = isMerge();
+
+const SCOPES = !IS_MERGE ? RAW_SCOPES : [];
 
 const FULL_MSG = readFileSync(process.argv[2])?.toString();
 const SPLITTED_FULL_MSG = FULL_MSG?.split("\n")?.[0]?.split(" ");
@@ -75,7 +79,11 @@ function detailErrors(errors: Errors) {
                 break;
 
             case "extra-scope":
-                console.log(chalk.red("◉ There are no configured scopes."));
+                if (!IS_MERGE) {
+                    console.log(chalk.red("◉ There are no configured scopes."));
+                } else {
+                    console.log(chalk.red("◉ No scope should be specified for a merge commit."));
+                }
                 break;
 
             case "start-lowercase":
