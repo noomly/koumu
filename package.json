@@ -1,6 +1,6 @@
 {
     "name": "koumu",
-    "version": "0.0.17",
+    "version": "0.1.0",
     "types": "dist/index.d.ts",
     "license": "MIT",
     "author": "Eyal Chojnowski <eyal@pianity.com>",
