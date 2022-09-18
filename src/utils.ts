@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import { existsSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 
@@ -31,4 +32,16 @@ export function isMerge(): boolean {
     }
 
     return existsSync(join(gitDir, "MERGE_HEAD"));
+}
+
+export function execCmd(cmd: string, args: string[], timeout = 5000): Promise<string | undefined> {
+    return new Promise((resolve, reject) => {
+        const cmdProcess = spawn(cmd, args, { timeout });
+
+        cmdProcess.on("error", () => reject("error"));
+
+        cmdProcess.stdout.on("data", (data) => resolve(data.toString()));
+
+        cmdProcess.on("close", () => resolve(undefined));
+    });
 }

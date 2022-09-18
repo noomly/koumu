@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 
 import { PromptResult, promptSelect } from "@/cli/commit/prompts";
+import { execCmd } from "@/utils";
 
 type PromiseWStatus<T> = { pending: boolean; promise: Promise<T> };
 type Issue = { number: number; createdAt: string; title: string };
@@ -9,20 +10,12 @@ type IssuesResult = "error" | Issue[];
 export function loadGhIssues(): PromiseWStatus<IssuesResult> {
     const promiseWStatus: PromiseWStatus<IssuesResult> = {
         pending: true,
-        promise: new Promise<IssuesResult>((resolve) => {
-            const gh = spawn("gh", ["issue", "list", "--json", "number,createdAt,title"], {
-                timeout: 5000,
-            });
-
-            gh.on("error", () => resolve("error"));
-
-            gh.stderr.on("data", () => resolve("error"));
-
-            gh.stdout.on("data", (data) => resolve(JSON.parse(data) as Issue[]));
-        }).then((data) => {
-            promiseWStatus.pending = false;
-            return data;
-        }),
+        promise: execCmd("gh", ["issue", "list", "--json", "number,createdAt,title"])
+            .then((data) => {
+                promiseWStatus.pending = false;
+                return JSON.parse(data) as Issue[];
+            })
+            .catch<"error">(() => "error"),
     };
 
     return promiseWStatus;
