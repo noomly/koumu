@@ -3,11 +3,11 @@ import { join } from "node:path";
 
 import chalk from "chalk";
 
-import { exhaustive, findGitDir } from "@/utils";
+import { exhaustive, findGitDir, findRoot } from "@/utils";
 
 declare const KOUMU_VERSION: string;
 
-export const SETUP_MODES = ["npm", "yarn", "yarn2", "generic"] as const;
+export const SETUP_MODES = ["npm", "yarn", "yarn2", "copyIntoHusky", "copyIntoGit"] as const;
 export type SetupMode = typeof SETUP_MODES[number];
 
 function setupJs(mode: SetupMode) {
@@ -26,7 +26,7 @@ function setupJs(mode: SetupMode) {
     devDeps.koumu = KOUMU_VERSION;
     devDeps.husky = "8.0.1";
 
-    const installScript = "husky install && koumu setup --generic";
+    const installScript = "husky install && koumu setup --copy-into-husky";
 
     if (mode === "yarn2") {
         scripts.postinstall = installScript;
@@ -44,27 +44,23 @@ function setupJs(mode: SetupMode) {
     );
 }
 
-function setupGeneric(commitMsgBuild: string, prepareCommitMsgBuild: string) {
-    const gitPath = findGitDir();
-
-    if (!gitPath) {
+function setupCopy(copyToPath: string, commitMsgBuild: string, prepareCommitMsgBuild: string) {
+    if (!copyToPath) {
         console.log(
-            chalk.red(`Could not find a .git directory in the current directory or any parent.`),
+            chalk.red(`Could not find ${copyToPath} in the current directory or any parent.`),
         );
         process.exit(1);
     }
 
-    const hooksPath = join(gitPath, "hooks");
-
-    if (!existsSync(hooksPath) || !statSync(hooksPath).isDirectory()) {
-        mkdirSync(hooksPath);
+    if (!existsSync(copyToPath) || !statSync(copyToPath).isDirectory()) {
+        mkdirSync(copyToPath);
     }
 
-    const commitMsgPath = join(hooksPath, "commit-msg");
+    const commitMsgPath = join(copyToPath, "commit-msg");
     writeFileSync(commitMsgPath, commitMsgBuild);
     chmodSync(commitMsgPath, 0o755);
 
-    const prepareCommitMsgPath = join(hooksPath, "prepare-commit-msg");
+    const prepareCommitMsgPath = join(copyToPath, "prepare-commit-msg");
     writeFileSync(prepareCommitMsgPath, prepareCommitMsgBuild);
     chmodSync(prepareCommitMsgPath, 0o755);
 }
@@ -81,8 +77,12 @@ export default function setup(
             setupJs(mode);
             break;
 
-        case "generic":
-            setupGeneric(commitMsgBuild, prepareCommitMsgBuild);
+        case "copyIntoHusky":
+            setupCopy(join(findRoot(), ".husky"), commitMsgBuild, prepareCommitMsgBuild);
+            break;
+
+        case "copyIntoGit":
+            setupCopy(join(findGitDir(), "hooks"), commitMsgBuild, prepareCommitMsgBuild);
             break;
 
         default:

@@ -32,7 +32,7 @@ export function findRoot(path?: string): string {
 }
 
 export function findGitDir(path?: string): string {
-    return findRoot(path);
+    return join(findRoot(path), ".git");
 }
 
 export function isMerge(): boolean {

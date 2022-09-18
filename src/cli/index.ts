@@ -24,8 +24,12 @@ program
     .option("--yarn", "alias for --npm")
     .option("--yarn2", "setup Koumu for Yarn v2+")
     .option(
-        "--generic",
-        "only install Koumu's git hook into standard git directory (use this if" +
+        "--copy-into-husky",
+        "copy Koumu's hooks into the .husky directory (use this if you've already setup Husky)",
+    )
+    .option(
+        "--copy-into-git",
+        "only install Koumu's hooks into standard git directory (use this if" +
             " your repo doesn't host a JS project)",
     )
     .action((rawOptions: Record<SetupMode, boolean>, cmd) => {

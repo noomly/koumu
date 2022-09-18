@@ -42,7 +42,10 @@ async function cli(
         ).outputFiles[0].contents,
     );
     const final = header + build;
-    await writeFile(`${OUTPUT_DIR}/cli.js`, final);
+
+    const outputPath = join(OUTPUT_DIR, "cli.js");
+    await writeFile(outputPath, final);
+    await chmod(outputPath, 0o755);
 
     return final;
 }

@@ -28,7 +28,7 @@ function getStringMap(rawConfig: Record<string, any>, key: string): ConfigMap {
     try {
         map = Object.entries(rawConfig[key]);
     } catch (e) {
-        throw new Error(`Invalid map "${key}" in koumurc.json`);
+        throw new Error(`Invalid map "${key}" in ${RC_PATH}`);
     }
 
     for (const item of map) {
@@ -38,7 +38,7 @@ function getStringMap(rawConfig: Record<string, any>, key: string): ConfigMap {
             typeof item[0] !== "string" ||
             typeof item[1] !== "string"
         ) {
-            throw new Error(`Invalid map item for "${key}" in koumurc.json`);
+            throw new Error(`Invalid map item for "${key}" in ${RC_PATH}`);
         }
     }
 
@@ -50,7 +50,7 @@ function getNumber(rawConfig: Record<string, any>, key: string): number {
     try {
         number = Number(rawConfig[key]);
     } catch (e) {
-        throw new Error(`Invalid number for "${key}" in koumurc.json`);
+        throw new Error(`Invalid number for "${key}" in ${RC_PATH}`);
     }
 
     return number;
@@ -64,7 +64,7 @@ function getString(rawConfig: Record<string, any>, key: string): string {
             throw new Error();
         }
     } catch (e) {
-        throw new Error(`Invalid string for "${key}" in koumurc.json`);
+        throw new Error(`Invalid string for "${key}" in ${RC_PATH}`);
     }
 
     return string;
