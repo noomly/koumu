@@ -45,7 +45,7 @@ function setupJs(mode: SetupMode) {
 }
 
 function setupGeneric(commitMsgBuild: string, prepareCommitMsgBuild: string) {
-    const gitPath = findGitDir(process.cwd());
+    const gitPath = findGitDir();
 
     if (!gitPath) {
         console.log(

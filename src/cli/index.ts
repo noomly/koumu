@@ -2,12 +2,21 @@ import { Command } from "commander";
 
 import commit from "@/cli/commit";
 import setup, { SetupMode, SETUP_MODES } from "@/cli/setup";
+import { writeConfig } from "@/cli/writeConfig";
 
 declare const KOUMU_VERSION: string;
 declare const KOUMU_COMMIT_MSG_BUILD: string;
 declare const KOUMU_PREPARE_COMMIT_MSG_BUILD: string;
+declare const KOUMU_DEFAULT_CONFIG: string;
 
 const program = new Command().name("koumu").version(KOUMU_VERSION);
+
+program
+    .command("write-config")
+    .description("write the default config to .koumurc.toml")
+    .action(() => {
+        writeConfig(KOUMU_DEFAULT_CONFIG);
+    });
 
 program
     .command("setup")

@@ -1,10 +1,11 @@
-import { chmod, writeFile, access, mkdir } from "node:fs/promises";
+import { chmod, writeFile, readFile, access, mkdir } from "node:fs/promises";
 import { TextDecoder } from "node:util";
 import { join } from "node:path";
 
 import esbuild from "esbuild";
 
 import { version } from "package.json";
+import { RC_PATH } from "@/config";
 
 const OUTPUT_DIR = "build";
 
@@ -17,12 +18,17 @@ async function exists(path: string) {
     }
 }
 
-async function cli(commitMsgBuild: string, prepareCommitMsgBuild: string): Promise<string> {
+async function cli(
+    commitMsgBuild: string,
+    prepareCommitMsgBuild: string,
+    defaultConfig: string,
+): Promise<string> {
     const header =
         `#!/usr/bin/env node\n` +
         `var KOUMU_VERSION="${version}";\n` +
         `var KOUMU_COMMIT_MSG_BUILD=${JSON.stringify(commitMsgBuild)};\n` +
-        `var KOUMU_PREPARE_COMMIT_MSG_BUILD=${JSON.stringify(prepareCommitMsgBuild)};\n`;
+        `var KOUMU_PREPARE_COMMIT_MSG_BUILD=${JSON.stringify(prepareCommitMsgBuild)};\n` +
+        `var KOUMU_DEFAULT_CONFIG=${JSON.stringify(defaultConfig)};\n`;
     const build = new TextDecoder().decode(
         (
             await esbuild.build({
@@ -94,5 +100,7 @@ async function prepareCommitMsg(): Promise<string> {
 
     const commitMsgBuild = await commitMsg();
     const prepareCommitMsgBuild = await prepareCommitMsg();
-    await cli(commitMsgBuild, prepareCommitMsgBuild);
+    const defaultConfig = (await readFile(RC_PATH)).toString();
+
+    await cli(commitMsgBuild, prepareCommitMsgBuild, defaultConfig);
 })();

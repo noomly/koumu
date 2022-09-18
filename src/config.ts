@@ -1,6 +1,9 @@
+import { join } from "node:path";
 import { existsSync, readFileSync, statSync } from "node:fs";
 
+import TOML from "@iarna/toml";
 import chalk from "chalk";
+import { findRoot } from "@/utils";
 
 export type ConfigMap = [kind: string, description: string][];
 
@@ -13,11 +16,12 @@ export type Config = {
 };
 
 const DEFAULT_CONFIG = {
+    scopes: [],
     maxMessageLength: 72,
     mergeKind: ":twisted_rightwards_arrows:",
 };
 
-const RC_PATH = "./koumurc.json";
+export const RC_PATH = join(findRoot(), ".koumurc.toml");
 
 function getStringMap(rawConfig: Record<string, any>, key: string): ConfigMap {
     let map;
@@ -67,17 +71,17 @@ function getString(rawConfig: Record<string, any>, key: string): string {
 }
 
 export function readConfig(): Config {
-    if (!existsSync(RC_PATH) && statSync(RC_PATH).isFile()) {
+    if (!existsSync(RC_PATH) || !statSync(RC_PATH).isFile()) {
         console.log(
             chalk.red(
                 "No configuration file found, Koumu wont check your commit" +
-                    " until a `koumurc.json` file is created at root.",
+                    " until a `.koumurc.toml` file is created at the root of your repository.",
             ),
         );
         process.exit(1);
     }
 
-    const rawConfig = JSON.parse(readFileSync(RC_PATH).toString());
+    const rawConfig = TOML.parse(readFileSync(RC_PATH).toString());
 
     let kinds: [string, string][];
     let scopes: [string, string][];
@@ -86,7 +90,7 @@ export function readConfig(): Config {
 
     try {
         kinds = getStringMap(rawConfig, "kinds");
-        scopes = getStringMap(rawConfig, "scopes");
+        scopes = rawConfig.scopes ? getStringMap(rawConfig, "scopes") : DEFAULT_CONFIG.scopes;
         maxMessageLength = rawConfig.maxMessageLength
             ? getNumber(rawConfig, "maxMessageLength")
             : DEFAULT_CONFIG.maxMessageLength;

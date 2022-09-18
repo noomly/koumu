@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import { spawn } from "node:child_process";
 import { existsSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -6,22 +7,32 @@ export function exhaustive(_: never): never {
     throw new Error("Exhaustive switch");
 }
 
-export function findGitDir(path: string): string | null {
-    const gitPath = join(path, ".git");
+// eslint-disable-next-line consistent-return
+export function findRoot(path?: string): string {
+    const effectivePath = path ?? process.cwd();
+
+    const gitPath = join(effectivePath, ".git");
+
+    let error = false;
 
     try {
         if (existsSync(gitPath) && statSync(gitPath).isDirectory()) {
-            return gitPath;
+            return effectivePath;
         }
     } catch (e) {
-        return null;
+        error = true;
     }
 
-    if (path === "/") {
-        return null;
+    if (error || path === "/") {
+        console.log(chalk.red("Could not find the root of the repository."));
+        process.exit(1);
     } else {
-        return findGitDir(resolve(path, ".."));
+        return findRoot(resolve(effectivePath, ".."));
     }
+}
+
+export function findGitDir(path?: string): string {
+    return findRoot(path);
 }
 
 export function isMerge(): boolean {

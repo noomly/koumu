@@ -23,6 +23,7 @@
         "postpack": "pinst --enable"
     },
     "dependencies": {
+        "@iarna/toml": "3.0.0",
         "chalk": "^4",
         "commander": "^9.4.0",
         "esbuild": "^0.14.49",
