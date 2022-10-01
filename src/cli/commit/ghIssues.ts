@@ -1,4 +1,4 @@
-import { PromptResult, promptSelect } from "@/cli/commit/prompts";
+import { promptSelect } from "@/cli/commit/prompts";
 import { execCmd } from "@/utils";
 
 type PromiseWStatus<T> = { pending: boolean; promise: Promise<T> };
@@ -22,7 +22,7 @@ export function loadGhIssues(): PromiseWStatus<IssuesResult> {
 export async function ghIssuesPrompt(
     ghIssues: PromiseWStatus<IssuesResult>,
     isClosingIssue: boolean,
-): Promise<PromptResult | "error"> {
+): Promise<string | "error"> {
     if (ghIssues.pending) {
         console.log("Loading github issues...");
     }
@@ -33,11 +33,7 @@ export async function ghIssuesPrompt(
         return promptSelect(
             `${isClosingIssue ? "closes " : ""}issue`,
             [...issues.values()].map(({ number, title }) => [`#${number}`, title]),
-        ).then((issue) =>
-            issue.type === "submit" && isClosingIssue
-                ? { ...issue, value: `Closes ${issue.value}` }
-                : issue,
-        );
+        ).then((issue) => (isClosingIssue ? `Closes ${issue}` : issue));
     } else {
         return "error";
     }

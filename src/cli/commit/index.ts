@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import chalk from "chalk";
 
 import { readConfig } from "@/config";
-import { loopingPromptLine, promptSelect } from "@/cli/commit/prompts";
+import { promptLine, promptSelect } from "@/cli/commit/prompts";
 import { ghIssuesPrompt, loadGhIssues } from "@/cli/commit/ghIssues";
 import { execCmd, isMerge } from "@/utils";
 
@@ -20,17 +20,11 @@ async function regularCommit(
     const { kinds, scopes, maxMessageLength } = readConfig();
 
     const kind = await promptSelect("commit kind", kinds);
-    if (kind.type === "cancel") {
-        process.exit(0);
-    }
 
     const scope = scopes.length === 0 ? undefined : await promptSelect("commit scope", scopes);
-    if (scope?.type === "cancel") {
-        process.exit(0);
-    }
 
     const issue = !ghIssues ? undefined : await ghIssuesPrompt(ghIssues, withClosingIssue);
-    if (issue === "error" || issue?.type === "cancel") {
+    if (issue === "error") {
         console.log(
             "Couldn't load issues from Github. Verify that you have Github's cli installed" +
                 ` and are logged in (by running \`${chalk.bold("gh auth login")}\`).` +
@@ -41,16 +35,13 @@ async function regularCommit(
 
     const message = externalEditor
         ? undefined
-        : await loopingPromptLine("commit message", maxMessageLength, maxMessageLength - 10);
-    if (message?.type === "cancel") {
-        process.exit(0);
-    }
+        : await promptLine("commit message", maxMessageLength, maxMessageLength - 10);
 
     const commitMessage =
-        kind.value +
-        (scope ? ` ${scope.value}:` : "") +
-        (message ? ` ${message.value}` : " ") +
-        (issue ? `\n\n(${issue.value})` : "");
+        kind +
+        (scope ? ` ${scope}:` : "") +
+        (message ? ` ${message}` : " ") +
+        (issue ? `\n\n(${issue})` : "");
 
     const gitArgs = ["commit", "-m", commitMessage];
 
@@ -66,12 +57,9 @@ async function mergeCommit(externalEditor: boolean) {
 
     const message = externalEditor
         ? undefined
-        : await loopingPromptLine("merge commit message", maxMessageLength, maxMessageLength - 10);
-    if (message?.type === "cancel") {
-        process.exit(0);
-    }
+        : await promptLine("merge commit message", maxMessageLength, maxMessageLength - 10);
 
-    const commitMessage = mergeKind + (message ? ` ${message.value}` : " ");
+    const commitMessage = mergeKind + (message ? ` ${message}` : " ");
 
     const gitArgs = ["commit", "-m", commitMessage];
 

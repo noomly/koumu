@@ -1,75 +1,51 @@
 import chalk from "chalk";
-import { prompt as getUserInput } from "prompts";
 import { emojify } from "node-emoji";
+import inquirer from "inquirer";
+import inquirerAutocompletePrompt from "inquirer-autocomplete-prompt";
 
 import { ConfigMap } from "@/config";
 
-export type PromptResult =
-    | {
-          type: "cancel";
-      }
-    | {
-          type: "submit";
-          value: string;
-      };
+inquirer.registerPrompt("autocomplete", inquirerAutocompletePrompt);
 
-export async function promptLine(
-    prompt: string,
-    length: number,
-    warning: number,
-): Promise<PromptResult> {
-    return new Promise((resolve, reject) => {
-        getUserInput(
-            {
-                type: "text",
-                message: prompt,
-                onRender() {
-                    if (this._value.length === 1 && this._value === this._value.toLowerCase()) {
-                        this._value = this._value.toUpperCase();
-                        this.rendered = this._value;
-                    }
+export async function promptLine(prompt: string, length: number, warning: number): Promise<string> {
+    const message: string = (
+        await inquirer.prompt({
+            type: "input",
+            name: "value",
+            message: prompt,
+            validate: (input: string | undefined) => {
+                if (!input || input.length === 0) {
+                    return "The commit message cannot be empty.";
+                }
 
-                    if (this._value.length > length - 1) {
-                        this._value = this._value.slice(0, length - 1);
-                        this.rendered = this._value;
-                        this.cursor = length;
-                    }
+                if (input.length > length) {
+                    return `The commit message must be <= ${length} characters long.`;
+                }
 
-                    if (this._value.length >= warning) {
-                        this.rendered = `${this._value.slice(0, warning)}${chalk.red(
-                            this._value.slice(warning),
-                        )}`;
-                    }
-                },
+                return true;
             },
-            {
-                onCancel: () => {
-                    resolve({ type: "cancel" });
-                },
-                onSubmit: (_: never, choice: string) => {
-                    resolve({ type: "submit", value: choice });
-                },
+            transformer: (input: string | undefined) => {
+                const transformed = !input
+                    ? ""
+                    : input[0].toUpperCase() +
+                      input.slice(1, warning) +
+                      chalk.yellow(input.slice(warning, length)) +
+                      chalk.red(input.slice(length));
+
+                return transformed;
             },
-        ).catch(reject);
-    });
+        })
+    ).value;
+
+    return message[0].toUpperCase() + message.slice(1);
 }
 
-export async function loopingPromptLine(prompt: string, length: number, warning: number) {
-    let message: undefined | PromptResult;
-
-    while (!message || (message.type === "submit" && message.value.length === 0)) {
-        message = await promptLine(prompt, length, warning);
-    }
-
-    return message;
-}
-
-export async function promptSelect(prompt: string, rawOptions: ConfigMap): Promise<PromptResult> {
+export async function promptSelect(prompt: string, rawOptions: ConfigMap): Promise<string> {
     const widestOption = rawOptions
         .map(([option]) => option)
         .sort((a, b) => b.length - a.length)[0];
 
-    const points = Object.fromEntries(
+    const dots = Object.fromEntries(
         rawOptions.map(([option]) => {
             return [option, ".".repeat(widestOption.length - option.length + 5)];
         }),
@@ -79,36 +55,27 @@ export async function promptSelect(prompt: string, rawOptions: ConfigMap): Promi
         const emoji = emojify(option);
 
         return {
-            title: `${option}${emoji !== option ? ` ${emoji}` : ""}${points[option]}${desc}`,
+            name: `${option}${emoji !== option ? ` ${emoji}` : ""}${dots[option]}${desc}`,
             value: `${option}`,
-            desc,
         };
     });
 
-    return new Promise((resolve, reject) => {
-        getUserInput(
+    return (
+        await inquirer.prompt([
             {
-                message: prompt,
-                choices: options,
                 type: "autocomplete",
-                suggest: (input: string, options: [{ title: string; desc: string }]) => {
-                    const lowerCaseInput = input.toLowerCase();
+                name: "value",
+                message: prompt,
+                source: async (_answersSoFar: unknown, input: string) => {
+                    if (!input) {
+                        return options;
+                    }
 
-                    return options.filter(
-                        (option) =>
-                            option.desc.toLowerCase().includes(lowerCaseInput) ||
-                            option.title.toLowerCase().includes(lowerCaseInput),
+                    return options.filter(({ name }) =>
+                        name.toLowerCase().includes(input.toLowerCase()),
                     );
                 },
             },
-            {
-                onCancel: () => {
-                    resolve({ type: "cancel" });
-                },
-                onSubmit: (_: never, choice: string) => {
-                    resolve({ type: "submit", value: choice });
-                },
-            },
-        ).catch(reject);
-    });
+        ])
+    ).value;
 }

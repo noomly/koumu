@@ -1,21 +1,17 @@
 import { Command } from "commander";
 
+import { VERSION, COMMIT_MSG_BUILD, PREPARE_COMMIT_MSG_BUILD, DEFAULT_CONFIG } from "@/cli/consts";
 import commit from "@/cli/commit";
 import setup, { SetupMode, SETUP_MODES } from "@/cli/setup";
 import { writeConfig } from "@/cli/writeConfig";
 
-declare const KOUMU_VERSION: string;
-declare const KOUMU_COMMIT_MSG_BUILD: string;
-declare const KOUMU_PREPARE_COMMIT_MSG_BUILD: string;
-declare const KOUMU_DEFAULT_CONFIG: string;
-
-const program = new Command().name("koumu").version(KOUMU_VERSION);
+const program = new Command().name("koumu").version(VERSION);
 
 program
     .command("write-config <path>")
     .description(`write the default config to <path>`)
     .action((options) => {
-        writeConfig(KOUMU_DEFAULT_CONFIG, options);
+        writeConfig(DEFAULT_CONFIG, options);
     });
 
 program
@@ -38,7 +34,7 @@ program
             cmd.help();
         }
 
-        setup(options[0], KOUMU_COMMIT_MSG_BUILD, KOUMU_PREPARE_COMMIT_MSG_BUILD);
+        setup(options[0], COMMIT_MSG_BUILD, PREPARE_COMMIT_MSG_BUILD);
     });
 
 program
