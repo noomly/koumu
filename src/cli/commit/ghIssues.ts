@@ -1,5 +1,3 @@
-import { spawn } from "node:child_process";
-
 import { PromptResult, promptSelect } from "@/cli/commit/prompts";
 import { execCmd } from "@/utils";
 
@@ -13,7 +11,7 @@ export function loadGhIssues(): PromiseWStatus<IssuesResult> {
         promise: execCmd("gh", ["issue", "list", "--json", "number,createdAt,title"])
             .then((data) => {
                 promiseWStatus.pending = false;
-                return JSON.parse(data) as Issue[];
+                return JSON.parse(data || "[]") as Issue[];
             })
             .catch<"error">(() => "error"),
     };

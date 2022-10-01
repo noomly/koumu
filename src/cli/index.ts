@@ -12,10 +12,10 @@ declare const KOUMU_DEFAULT_CONFIG: string;
 const program = new Command().name("koumu").version(KOUMU_VERSION);
 
 program
-    .command("write-config")
-    .description("write the default config to .koumurc.toml")
-    .action(() => {
-        writeConfig(KOUMU_DEFAULT_CONFIG);
+    .command("write-config <path>")
+    .description(`write the default config to <path>`)
+    .action((options) => {
+        writeConfig(KOUMU_DEFAULT_CONFIG, options);
     });
 
 program

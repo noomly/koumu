@@ -1,9 +1,12 @@
+import { env } from "node:process";
+import { homedir, platform as getPlatform } from "node:os";
 import { join } from "node:path";
 import { existsSync, readFileSync, statSync } from "node:fs";
 
 import TOML from "@iarna/toml";
 import chalk from "chalk";
-import { findRoot } from "@/utils";
+
+import { findProjectRoot } from "@/utils";
 
 export type ConfigMap = [kind: string, description: string][];
 
@@ -21,14 +24,63 @@ const DEFAULT_CONFIG = {
     mergeKind: ":twisted_rightwards_arrows:",
 };
 
-export const RC_PATH = join(findRoot(), ".koumurc.toml");
+export function projectRcPath() {
+    const projectRootPath = findProjectRoot();
+
+    return projectRootPath && join(projectRootPath, ".koumurc.toml");
+}
+
+function homeRcPath(): string | undefined {
+    return join(homedir(), ".koumurc.toml");
+}
+
+function configRcPath(): string | undefined {
+    const platform = getPlatform();
+    let configHome: string | undefined;
+
+    if (env.XDG_CONFIG_HOME) {
+        configHome = join(env.XDG_CONFIG_HOME, "koumu");
+    } else if (platform === "linux" || platform === "android") {
+        configHome = join(homedir(), ".config", "koumu");
+    } else if (platform === "darwin") {
+        configHome = join(homedir(), "Library", "Preferences", "koumu");
+    }
+
+    return configHome && join(configHome, "koumurc.toml");
+}
+
+// eslint-disable-next-line consistent-return
+export function findRcPath(): string {
+    const possiblePaths = [projectRcPath(), homeRcPath(), configRcPath()].filter(
+        (path): path is string => !!path,
+    );
+
+    for (const path of possiblePaths) {
+        if (path && existsSync(path) && statSync(path).isFile()) {
+            return path;
+        }
+    }
+
+    console.log(
+        chalk.red(
+            "No configuration file found, Koumu wont check your commit until one is written " +
+                "at one of these paths:\n",
+        ),
+    );
+
+    for (const path of possiblePaths) {
+        console.log(chalk.blue(`    ◉ "${path}"`));
+    }
+
+    process.exit(1);
+}
 
 function getStringMap(rawConfig: Record<string, any>, key: string): ConfigMap {
     let map;
     try {
         map = Object.entries(rawConfig[key]);
     } catch (e) {
-        throw new Error(`Invalid map "${key}" in ${RC_PATH}`);
+        throw new Error(`Invalid map "${key}" in ${findRcPath()}`);
     }
 
     for (const item of map) {
@@ -38,7 +90,7 @@ function getStringMap(rawConfig: Record<string, any>, key: string): ConfigMap {
             typeof item[0] !== "string" ||
             typeof item[1] !== "string"
         ) {
-            throw new Error(`Invalid map item for "${key}" in ${RC_PATH}`);
+            throw new Error(`Invalid map item for "${key}" in ${findRcPath()}`);
         }
     }
 
@@ -50,7 +102,7 @@ function getNumber(rawConfig: Record<string, any>, key: string): number {
     try {
         number = Number(rawConfig[key]);
     } catch (e) {
-        throw new Error(`Invalid number for "${key}" in ${RC_PATH}`);
+        throw new Error(`Invalid number for "${key}" in ${findRcPath()}`);
     }
 
     return number;
@@ -64,24 +116,14 @@ function getString(rawConfig: Record<string, any>, key: string): string {
             throw new Error();
         }
     } catch (e) {
-        throw new Error(`Invalid string for "${key}" in ${RC_PATH}`);
+        throw new Error(`Invalid string for "${key}" in ${findRcPath()}`);
     }
 
     return string;
 }
 
 export function readConfig(): Config {
-    if (!existsSync(RC_PATH) || !statSync(RC_PATH).isFile()) {
-        console.log(
-            chalk.red(
-                "No configuration file found, Koumu wont check your commit" +
-                    " until a `.koumurc.toml` file is created at the root of your repository.",
-            ),
-        );
-        process.exit(1);
-    }
-
-    const rawConfig = TOML.parse(readFileSync(RC_PATH).toString());
+    const rawConfig = TOML.parse(readFileSync(findRcPath()).toString());
 
     let kinds: [string, string][];
     let scopes: [string, string][];

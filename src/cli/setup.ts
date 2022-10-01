@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import chalk from "chalk";
 
-import { exhaustive, findGitDir, findRoot } from "@/utils";
+import { exhaustive, findGitDir, findProjectRoot } from "@/utils";
 
 declare const KOUMU_VERSION: string;
 
@@ -78,11 +78,19 @@ export default function setup(
             break;
 
         case "copyIntoHusky":
-            setupCopy(join(findRoot(), ".husky"), commitMsgBuild, prepareCommitMsgBuild);
+            setupCopy(
+                join(findProjectRoot({ exitOnError: true }), ".husky"),
+                commitMsgBuild,
+                prepareCommitMsgBuild,
+            );
             break;
 
         case "copyIntoGit":
-            setupCopy(join(findGitDir(), "hooks"), commitMsgBuild, prepareCommitMsgBuild);
+            setupCopy(
+                join(findGitDir({ exitOnError: true }), "hooks"),
+                commitMsgBuild,
+                prepareCommitMsgBuild,
+            );
             break;
 
         default:

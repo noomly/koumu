@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { emojify } from "node-emoji";
 import chalk from "chalk";
 
-import { exhaustive, findGitDir, isMerge } from "@/utils";
+import { exhaustive, isMerge } from "@/utils";
 import { readConfig } from "@/config";
 
 const { kinds: KINDS, scopes: RAW_SCOPES, maxMessageLength: MAX_MESSAGE_LENGTH } = readConfig();

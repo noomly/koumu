@@ -5,7 +5,7 @@ import { join } from "node:path";
 import esbuild from "esbuild";
 
 import { version } from "package.json";
-import { RC_PATH } from "@/config";
+import { projectRcPath as getProjectRcPath } from "@/config";
 
 const OUTPUT_DIR = "build";
 
@@ -101,9 +101,15 @@ async function prepareCommitMsg(): Promise<string> {
         await mkdir(OUTPUT_DIR);
     }
 
+    const projectRcPath = getProjectRcPath();
+
+    if (!projectRcPath) {
+        throw new Error("Could not find project root");
+    }
+
     const commitMsgBuild = await commitMsg();
     const prepareCommitMsgBuild = await prepareCommitMsg();
-    const defaultConfig = (await readFile(RC_PATH)).toString();
+    const defaultConfig = (await readFile(projectRcPath)).toString();
 
     await cli(commitMsgBuild, prepareCommitMsgBuild, defaultConfig);
 })();

@@ -6,7 +6,7 @@ import { readConfig } from "@/config";
 const { mergeKind } = readConfig();
 
 const MSG_PATH = process.argv[2];
-const COMMIT_TYPE = process.argv[3];
+// const COMMIT_TYPE = process.argv[3];
 
 if (!isMerge()) {
     process.exit(0);

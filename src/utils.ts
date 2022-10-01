@@ -3,13 +3,19 @@ import { spawn } from "node:child_process";
 import { existsSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-export function exhaustive(_: never): never {
-    throw new Error("Exhaustive switch");
-}
+type FindPathArgs<T extends boolean> = {
+    fromPath?: string;
+    exitOnError?: T;
+};
+
+type FindPathResult<T extends boolean> = T extends true ? string : string | undefined;
 
 // eslint-disable-next-line consistent-return
-export function findRoot(path?: string): string {
-    const effectivePath = path ?? process.cwd();
+export function findProjectRoot<T extends boolean>({
+    fromPath,
+    exitOnError,
+}: FindPathArgs<T> = {}): FindPathResult<T> {
+    const effectivePath = fromPath ?? process.cwd();
 
     const gitPath = join(effectivePath, ".git");
 
@@ -23,20 +29,30 @@ export function findRoot(path?: string): string {
         error = true;
     }
 
-    if (error || path === "/") {
-        console.log(chalk.red("Could not find the root of the repository."));
-        process.exit(1);
+    if (error || fromPath === "/") {
+        if (exitOnError) {
+            console.log(chalk.red("Could not find the root of the repository."));
+            process.exit(1);
+        } else {
+            return undefined as FindPathResult<T>;
+        }
     } else {
-        return findRoot(resolve(effectivePath, ".."));
+        return findProjectRoot({ fromPath: resolve(effectivePath, ".."), exitOnError });
     }
 }
 
-export function findGitDir(path?: string): string {
-    return join(findRoot(path), ".git");
+export function findGitDir<T extends boolean>(args: FindPathArgs<T> = {}): FindPathResult<T> {
+    const root = findProjectRoot(args);
+
+    if (root) {
+        return join(root, ".git");
+    } else {
+        return undefined as FindPathResult<T>;
+    }
 }
 
 export function isMerge(): boolean {
-    const gitDir = findGitDir(process.cwd());
+    const gitDir = findGitDir({ fromPath: process.cwd(), exitOnError: true });
 
     if (!gitDir) {
         return false;
@@ -55,4 +71,8 @@ export function execCmd(cmd: string, args: string[], timeout = 5000): Promise<st
 
         cmdProcess.on("close", () => resolve(undefined));
     });
+}
+
+export function exhaustive(_: never): never {
+    throw new Error("Exhaustive switch");
 }
