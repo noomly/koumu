@@ -3,6 +3,8 @@
 *Koumu is a simple program that doubles as commit message validator (installed as Git hook) and as
 a CLI utility allowing you to interactively write valid commit messages.*
 
+[![npm](https://img.shields.io/npm/v/koumu?style=flat-square)](https://npmjs.com/package/koumu)
+
 ---
 
 ## How to use
