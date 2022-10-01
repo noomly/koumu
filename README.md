@@ -5,7 +5,7 @@ interactively) write beautiful commits messages.*
 
 ![npm](https://img.shields.io/npm/v/koumu?style=flat-square)
 
----
+![demo](/assets/demo.gif)
 
 ## How to use
 
