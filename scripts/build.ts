@@ -2,7 +2,8 @@ import { chmod, writeFile, readFile, access, mkdir } from "node:fs/promises";
 import { TextDecoder } from "node:util";
 import { join } from "node:path";
 
-import esbuild from "esbuild";
+import esbuild, { Plugin, PluginBuild } from "esbuild";
+import { externalGlobalPlugin } from "esbuild-plugin-external-global";
 
 import { version } from "package.json";
 import { projectRcPath as getProjectRcPath } from "@/config";
@@ -18,17 +19,29 @@ async function exists(path: string) {
     }
 }
 
+function replaceImport(filePath: string, replaceWith: string): Plugin {
+    return {
+        name: "replaceImport",
+        setup(build: PluginBuild) {
+            build.onLoad({ filter: new RegExp(filePath) }, (args) => {
+                return { contents: replaceWith, loader: "ts" };
+            });
+        },
+    };
+}
+
 async function cli(
     commitMsgBuild: string,
     prepareCommitMsgBuild: string,
     defaultConfig: string,
 ): Promise<string> {
-    const header =
-        `#!/usr/bin/env node\n` +
-        `var KOUMU_VERSION="${version}";\n` +
-        `var KOUMU_COMMIT_MSG_BUILD=${JSON.stringify(commitMsgBuild)};\n` +
-        `var KOUMU_PREPARE_COMMIT_MSG_BUILD=${JSON.stringify(prepareCommitMsgBuild)};\n` +
-        `var KOUMU_DEFAULT_CONFIG=${JSON.stringify(defaultConfig)};\n`;
+    const header = `#!/usr/bin/env node\n`;
+
+    const consts =
+        `export const VERSION="${version}";\n` +
+        `export const COMMIT_MSG_BUILD=${JSON.stringify(commitMsgBuild)};\n` +
+        `export const PREPARE_COMMIT_MSG_BUILD=${JSON.stringify(prepareCommitMsgBuild)};\n` +
+        `export const DEFAULT_CONFIG=${JSON.stringify(defaultConfig)};\n`;
     const build = new TextDecoder().decode(
         (
             await esbuild.build({
@@ -38,6 +51,7 @@ async function cli(
                 minify: true,
                 entryPoints: ["src/cli/index.ts"],
                 write: false,
+                plugins: [replaceImport("src/cli/consts.ts", consts)],
             })
         ).outputFiles[0].contents,
     );
