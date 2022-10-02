@@ -4,10 +4,9 @@ import { join } from "node:path";
 import chalk from "chalk";
 
 import { exhaustive, findGitDir, findProjectRoot } from "@/utils";
+import { VERSION } from "@/cli/consts";
 
-declare const KOUMU_VERSION: string;
-
-export const SETUP_MODES = ["npm", "yarn", "yarn2", "copyIntoHusky", "copyIntoGit"] as const;
+export const SETUP_MODES = ["npm", "yarn", "yarn2", "husky", "git"] as const;
 export type SetupMode = typeof SETUP_MODES[number];
 
 function setupJs(mode: SetupMode) {
@@ -23,10 +22,10 @@ function setupJs(mode: SetupMode) {
     const { scripts } = pkg;
     const devDeps = pkg.devDependencies;
 
-    devDeps.koumu = KOUMU_VERSION;
+    devDeps.koumu = VERSION;
     devDeps.husky = "8.0.1";
 
-    const installScript = "husky install && koumu setup --copy-into-husky";
+    const installScript = "husky install && koumu setup --husky";
 
     if (mode === "yarn2") {
         scripts.postinstall = installScript;
@@ -77,7 +76,7 @@ export default function setup(
             setupJs(mode);
             break;
 
-        case "copyIntoHusky":
+        case "husky":
             setupCopy(
                 join(findProjectRoot({ exitOnError: true }), ".husky"),
                 commitMsgBuild,
@@ -85,7 +84,7 @@ export default function setup(
             );
             break;
 
-        case "copyIntoGit":
+        case "git":
             setupCopy(
                 join(findGitDir({ exitOnError: true }), "hooks"),
                 commitMsgBuild,

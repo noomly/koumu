@@ -20,11 +20,11 @@ program
     .option("--yarn", "alias for --npm")
     .option("--yarn2", "setup Koumu for Yarn v2+")
     .option(
-        "--copy-into-husky",
+        "--copy-into-husky, --husky",
         "copy Koumu's hooks into the .husky directory (use this if you've already setup Husky)",
     )
     .option(
-        "--copy-into-git",
+        "--copy-into-git, --git",
         "only install Koumu's hooks into standard git directory (use this if" +
             " your repo doesn't host a JS project)",
     )
