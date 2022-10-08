@@ -1,10 +1,15 @@
 import { Command } from "commander";
 
-import { VERSION, COMMIT_MSG_BUILD, PREPARE_COMMIT_MSG_BUILD, DEFAULT_CONFIG } from "@/cli/consts";
+import {
+    VERSION,
+    COMMIT_MSG_BUILD,
+    PREPARE_COMMIT_MSG_BUILD,
+    DEFAULT_CONFIG,
+} from "@/cli/utils/consts";
 import commit from "@/cli/commit";
 import setup, { SetupMode, SETUP_MODES } from "@/cli/setup";
 import { writeConfig } from "@/cli/writeConfig";
-import { checkHooksVersion } from "@/cli/checkHooksVersion";
+import { checkHooksVersion } from "@/cli/utils/checkHooksVersion";
 
 checkHooksVersion().then(runCli);
 

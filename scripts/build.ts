@@ -3,7 +3,6 @@ import { TextDecoder } from "node:util";
 import { join } from "node:path";
 
 import esbuild, { Plugin, PluginBuild } from "esbuild";
-import { externalGlobalPlugin } from "esbuild-plugin-external-global";
 
 import { version } from "package.json";
 import { projectRcPath as getProjectRcPath } from "@/config";

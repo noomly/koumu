@@ -5,7 +5,7 @@ import { join } from "node:path";
 import chalk from "chalk";
 
 import { findProjectRoot } from "@/utils";
-import { VERSION } from "@/cli/consts";
+import { VERSION } from "@/cli/utils/consts";
 
 function getHookVersion(path: string): Promise<string | undefined> {
     return new Promise((resolve, _) => {

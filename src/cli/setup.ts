@@ -4,7 +4,7 @@ import { join } from "node:path";
 import chalk from "chalk";
 
 import { exhaustive, findGitDir, findProjectRoot } from "@/utils";
-import { VERSION } from "@/cli/consts";
+import { VERSION } from "@/cli/utils/consts";
 
 export const SETUP_MODES = ["npm", "yarn", "yarn2", "husky", "git"] as const;
 export type SetupMode = typeof SETUP_MODES[number];
