@@ -4,6 +4,8 @@ build/
 coverage/
 public/
 
+*ignoreme*
+
 # Logs
 *.log
 npm-debug.log*
