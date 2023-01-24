@@ -45,7 +45,7 @@ If your project isn't a JS project, if your package manager isn't supported, or 
 to use Husky, you can still easily install the hook on any Git repository by running:
 
 ```
-koumu setup --generic
+koumu setup --git
 ```
 
 This will simply write the hook at `.git/hooks/commit-msg`.
