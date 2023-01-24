@@ -38,8 +38,7 @@ async function regularCommit(
         : await promptLine("commit message", maxMessageLength, maxMessageLength - 10);
 
     const commitMessage =
-        kind +
-        (scope ? ` ${scope}:` : "") +
+        (scope ? `${scope}(${kind}):` : `${kind}`) +
         (message ? ` ${message}` : " ") +
         (issue ? `\n\n(${issue})` : "");
 
