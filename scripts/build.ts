@@ -50,7 +50,7 @@ async function cli(
                 minify: true,
                 entryPoints: ["src/cli/index.ts"],
                 write: false,
-                plugins: [replaceImport("src/cli/consts.ts", consts)],
+                plugins: [replaceImport("src/cli/utils/consts.ts", consts)],
             })
         ).outputFiles[0].contents,
     );
