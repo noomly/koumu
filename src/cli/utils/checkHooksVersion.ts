@@ -1,5 +1,5 @@
 import { createReadStream, existsSync, statSync } from "node:fs";
-import { createInterface } from "node:readline/promises";
+import { createInterface } from "node:readline";
 import { join } from "node:path";
 
 import chalk from "chalk";
