@@ -2505,7 +2505,7 @@ __metadata:
     tsx: 3.9.0
     typescript: 4.8.4
   bin:
-    koumu: build/cli.js
+    koumu: build/koumu
   languageName: unknown
   linkType: soft
 
