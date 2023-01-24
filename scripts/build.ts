@@ -56,7 +56,7 @@ async function cli(
     );
     const final = header + build;
 
-    const outputPath = join(OUTPUT_DIR, "cli.js");
+    const outputPath = join(OUTPUT_DIR, "koumu");
     await writeFile(outputPath, final);
     await chmod(outputPath, 0o755);
 
@@ -81,7 +81,6 @@ async function commitMsg(): Promise<string> {
 
     const outputPath = join(OUTPUT_DIR, "commit-msg");
     await writeFile(outputPath, final);
-    await chmod(outputPath, 0o755);
 
     return final;
 }
@@ -104,7 +103,6 @@ async function prepareCommitMsg(): Promise<string> {
 
     const outputPath = join(OUTPUT_DIR, "prepare-commit-msg");
     await writeFile(outputPath, final);
-    await chmod(outputPath, 0o755);
 
     return final;
 }
