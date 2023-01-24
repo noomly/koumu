@@ -11,6 +11,8 @@ a CLI utility allowing you to interactively write valid commit messages.*
 
 ### Installing
 
+First of all you will need `node` in version 17 or more.
+
 Koumu being an NPM package, the recommended way to install it is via NPM. Make sure you have it
 installed and run:
 
